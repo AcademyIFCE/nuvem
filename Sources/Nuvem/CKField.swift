@@ -1,4 +1,5 @@
 import CloudKit
+import Combine
 
 public protocol CKFieldProtocol: AnyObject {
     var key: String { get }
@@ -39,6 +40,7 @@ public protocol CKFieldProtocol: AnyObject {
             }
         }
         set {
+            publisher.send(newValue)
             if let record {
                 record[key] = Value.set(newValue)
             } else {
@@ -48,6 +50,8 @@ public protocol CKFieldProtocol: AnyObject {
     }
     
     public var projectedValue: CKField<Value> { self }
+    
+    public lazy var publisher = PassthroughSubject<Value, Never>()
     
     public init(_ key: String, `default` defaultValue: Value) {
         self.key = key

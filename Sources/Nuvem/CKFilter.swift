@@ -5,6 +5,12 @@ public protocol CKFilter<Model> {
     var predicate: NSPredicate { get }
 }
 
+struct CKPredicateFilter<Model: CKModel>: CKFilter {
+    
+    let predicate: NSPredicate
+    
+}
+
 public struct CKComparisonFilter<Model: CKModel>: CKFilter {
     
     enum Operator: String {

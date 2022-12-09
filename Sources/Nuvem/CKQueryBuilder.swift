@@ -3,57 +3,95 @@ import CloudKit
 public class CKQueryBuilder<Model> where Model: CKModel {
     
     let database: CKDatabase
+    
     var resultsLimit: Int?
-    var predicate: NSPredicate
-    var sortDescriptors: [NSSortDescriptor]
-    var desiredKeys: [CKRecord.FieldKey]?
-    var keyPathOfFieldToEagerLoad: PartialKeyPath<Model>?
+    
+    var fieldToEagerLoad: PartialKeyPath<Model>?
+    
+    let desiredKeysBuilder = DesiredKeysBuilder<Model>()
+    let sortDescriptorsBuilder = SortDescriptorsBuilder<Model>()
+    let predicateBuilder = PredicateBuilder<Model>()
     
     init(database: CKDatabase) {
         self.database = database
-        self.predicate = NSPredicate(value: true)
-        self.sortDescriptors = []
+    }
+    
+    public func matching(_ predicate: NSPredicate) -> Self {
+        predicateBuilder.add(predicate)
+        return self
     }
     
     public func filter(_ filter: some CKFilter<Model>) -> Self {
-        self.predicate = filter.predicate
+        predicateBuilder.add(filter)
         return self
     }
     
     public func sort<Value>(_ field: KeyPath<Model, CKField<Value>>, order: CKSort<Model>.Order = .ascending) -> Self {
-        self.sortDescriptors.append(CKSort(field, order: order).descriptor)
+        sortDescriptorsBuilder.add(CKSort(field, order: order))
         return self
     }
     
     public func field(_ field: KeyPath<Model, some CKFieldProtocol>) -> Self {
-        let key = Model.init()[keyPath: field].key
-        if desiredKeys == nil {
-            desiredKeys = []
-        }
-        desiredKeys?.append(key)
+        desiredKeysBuilder.add(field)
+        return self
+    }
+    
+    public func fields(_ fields: [CKFieldPath<Model>]) -> Self {
+        desiredKeysBuilder.add(fields)
         return self
     }
     
     public func with<Value>(_ field: KeyPath<Model, CKReferenceField<Value>>) -> Self {
-        keyPathOfFieldToEagerLoad = field
+        fieldToEagerLoad = field
         return self
     }
     
     public func limit(_ limit: Int) -> Self {
-        self.resultsLimit = limit
+        resultsLimit = limit
         return self
     }
     
     public func all() async throws -> [Model] {
-        return try await matching(predicate)
+        
+        var queryCursor: CKQueryOperation.Cursor?
+        var matchResults = [(CKRecord.ID, Result<CKRecord, Error>)]()
+        
+        let response = try await run()
+        
+        if resultsLimit == nil {
+            queryCursor = response.queryCursor
+        }
+        
+        matchResults.append(contentsOf: response.matchResults)
+        
+        while queryCursor != nil {
+            let response = try await database.records(continuingMatchFrom: queryCursor!)
+            queryCursor = response.queryCursor
+            matchResults.append(contentsOf: response.matchResults)
+        }
+        
+        let models = try matchResults.map { (_, result) in
+            let record = try result.get()
+            return Model(record: record)
+        }
+        
+        if let fieldToEagerLoad {
+            
+            let fields = models.map {
+                $0[keyPath: fieldToEagerLoad] as! (any CKReferenceFieldProtocol)
+            }
+            
+            try await eagerLoad(fields)
+            
+        }
+        
+        return models
+        
     }
     
-    func first() async throws -> Model? {
+    public func first() async throws -> Model? {
         
-        let query = CKQuery(recordType: Model.recordType, predicate: predicate)
-        query.sortDescriptors = sortDescriptors
-        
-        let (matchResults, _) = try await database.records(matching: query, resultsLimit: 1)
+        let (matchResults, _) = try await run()
         
         let model = try matchResults.first.map { (_, result) in
             let record = try result.get()
@@ -63,62 +101,35 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         return model
     }
     
-    public func matching(_ predicate: NSPredicate) async throws -> [Model] {
+    private func run() async throws -> (matchResults: [(CKRecord.ID, Result<CKRecord, Error>)], queryCursor: CKQueryOperation.Cursor?) {
+        
+        let predicate = predicateBuilder.predicate
+        let sortDescriptors = sortDescriptorsBuilder.sortDescriptors
+        let desiredKeys = desiredKeysBuilder.desiredKeys
         
         let query = CKQuery(recordType: Model.recordType, predicate: predicate)
-        query.sortDescriptors = sortDescriptors
-                
-        var cursor: CKQueryOperation.Cursor?
-        var matchResults = [(CKRecord.ID, Result<CKRecord, Error>)]()
         
-        let response = try await database.records(
+        query.sortDescriptors = sortDescriptors
+        
+        return try await database.records(
             matching: query,
             desiredKeys: desiredKeys,
-            resultsLimit: resultsLimit ?? CKQueryOperation.maximumResults
+            resultsLimit: 1
         )
         
-        if resultsLimit == nil {
-            cursor = response.queryCursor
-        }
+    }
+    
+    private func eagerLoad(_ fields: [any CKReferenceFieldProtocol]) async throws {
         
-        matchResults.append(contentsOf: response.matchResults)
+        let idsToFetch = Set(fields.compactMap(\.reference?.recordID))
         
-        while cursor != nil {
-            let response = try await database.records(continuingMatchFrom: cursor!)
-            cursor = response.queryCursor
-            matchResults.append(contentsOf: response.matchResults)
-        }
+        let response = try await database.records(for: Array(idsToFetch))
         
-        let models = try matchResults.map { (_, result) in
-            let record = try result.get()
-            return Model(record: record)
-        }
-        
-        if let keyPathOfFieldToEagerLoad {
-            
-            var idsToFetch: Set<CKRecord.ID> = []
-            
-            var fields: [any CKReferenceFieldProtocol] = []
-            
-            for model in models {
-                let field = model[keyPath: keyPathOfFieldToEagerLoad] as! (any CKReferenceFieldProtocol)
-                if let id = field.reference?.recordID {
-                    fields.append(field)
-                    idsToFetch.insert(id)
-                }
+        for field in fields {
+            if let id = field.reference?.recordID, let record = try response[id]?.get() {
+                field.initialiseValue(record)
             }
-            
-            let response = try await database.records(for: Array(idsToFetch))
-            
-            for field in fields {
-                if let id = field.reference?.recordID, let record = try response[id]?.get() {
-                    field.initialiseValue(record)
-                }
-            }
-                        
         }
-        
-        return models
         
     }
     
