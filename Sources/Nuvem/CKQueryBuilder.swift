@@ -6,7 +6,7 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     
     var resultsLimit: Int?
     
-    var fieldToEagerLoad: PartialKeyPath<Model>?
+    var fieldsToEagerLoad = [PartialKeyPath<Model>]()
     
     let desiredKeysBuilder = DesiredKeysBuilder<Model>()
     let sortDescriptorsBuilder = SortDescriptorsBuilder<Model>()
@@ -31,6 +31,11 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         return self
     }
     
+    public func sort(_ timestamp: KeyPath<Model, CKTimestamp>, order: CKSort<Model>.Order = .ascending) -> Self {
+        sortDescriptorsBuilder.add(CKSort(timestamp, order: order))
+        return self
+    }
+    
     public func field(_ field: KeyPath<Model, some CKFieldProtocol>) -> Self {
         desiredKeysBuilder.add(field)
         return self
@@ -42,7 +47,7 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     }
     
     public func with<Value>(_ field: KeyPath<Model, CKReferenceField<Value>>) -> Self {
-        fieldToEagerLoad = field
+        fieldsToEagerLoad.append(field)
         return self
     }
     
@@ -75,7 +80,7 @@ public class CKQueryBuilder<Model> where Model: CKModel {
             return Model(record: record)
         }
         
-        if let fieldToEagerLoad {
+        if let fieldToEagerLoad = fieldsToEagerLoad.first {
             
             let fields = models.map {
                 $0[keyPath: fieldToEagerLoad] as! (any CKReferenceFieldProtocol)

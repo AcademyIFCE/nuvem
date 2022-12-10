@@ -24,10 +24,18 @@ extension CKModel {
     
     func bindRecordToFields() {
         
-        let allFields = allKeyPaths.values.compactMap({ self[keyPath: $0] as? CKFieldProtocol })
+        let allKeyPaths = allKeyPaths.values
+        
+        let allFields = allKeyPaths.compactMap({ self[keyPath: $0] as? CKFieldProtocol })
 
         for field in allFields {
             field.record = self.record
+        }
+        
+        let allTimestamps = allKeyPaths.compactMap({ self[keyPath: $0] as? CKTimestamp })
+        
+        for timestamp in allTimestamps {
+            timestamp.record = record
         }
 
     }

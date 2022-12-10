@@ -24,3 +24,12 @@ extension CKSort {
     }
     
 }
+
+extension CKSort {
+    
+    init(_ keyPath: KeyPath<Model, CKTimestamp>, order: Order) {
+        let key = Model.init()[keyPath: keyPath].event.rawValue
+        self.init(key: key, order: order)
+    }
+    
+}
