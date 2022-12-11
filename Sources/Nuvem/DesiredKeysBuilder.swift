@@ -19,4 +19,8 @@ final class DesiredKeysBuilder<Model: CKModel> {
         self.fields.append(CKFieldPath(field))
     }
     
+    func add(_ fields: PartialKeyPath<Model>...) {
+        self.fields.append(contentsOf: fields.map(CKFieldPath.init))
+    }
+    
 }

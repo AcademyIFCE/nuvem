@@ -16,7 +16,7 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         self.database = database
     }
     
-    public func matching(_ predicate: NSPredicate) -> Self {
+    public func filter(_ predicate: NSPredicate) -> Self {
         predicateBuilder.add(predicate)
         return self
     }
@@ -26,23 +26,123 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         return self
     }
     
-    public func sort<Value>(_ field: KeyPath<Model, CKField<Value>>, order: CKSort<Model>.Order = .ascending) -> Self {
+    public typealias FieldPath<Value> = KeyPath<Model, Value>
+    
+    public func sort(_ field: FieldPath<some CKFieldProtocol>, order: CKSort<Model>.Order = .ascending) -> Self {
         sortDescriptorsBuilder.add(CKSort(field, order: order))
         return self
     }
     
-    public func sort(_ timestamp: KeyPath<Model, CKTimestamp>, order: CKSort<Model>.Order = .ascending) -> Self {
-        sortDescriptorsBuilder.add(CKSort(timestamp, order: order))
-        return self
-    }
-    
-    public func field(_ field: KeyPath<Model, some CKFieldProtocol>) -> Self {
+    public func field(_ field: FieldPath<some CKFieldProtocol>) -> Self {
         desiredKeysBuilder.add(field)
         return self
     }
-    
-    public func fields(_ fields: [CKFieldPath<Model>]) -> Self {
-        desiredKeysBuilder.add(fields)
+            
+    public func field(
+        _ f0: FieldPath<some CKFieldProtocol>,
+        _ f1: FieldPath<some CKFieldProtocol>
+    ) -> Self {
+        desiredKeysBuilder.add(f0, f1)
+        return self
+    }
+
+    public func field(
+        _ f0: FieldPath<some CKFieldProtocol>,
+        _ f1: FieldPath<some CKFieldProtocol>,
+        _ f2: FieldPath<some CKFieldProtocol>
+    ) -> Self {
+        desiredKeysBuilder.add(f0, f1, f2)
+        return self
+    }
+
+    public func field(
+        _ f0: FieldPath<some CKFieldProtocol>,
+        _ f1: FieldPath<some CKFieldProtocol>,
+        _ f2: FieldPath<some CKFieldProtocol>,
+        _ f3: FieldPath<some CKFieldProtocol>
+    ) -> Self {
+        desiredKeysBuilder.add(f0, f1, f2, f3)
+        return self
+    }
+
+    public func field(
+        _ f0: FieldPath<some CKFieldProtocol>,
+        _ f1: FieldPath<some CKFieldProtocol>,
+        _ f2: FieldPath<some CKFieldProtocol>,
+        _ f3: FieldPath<some CKFieldProtocol>,
+        _ f4: FieldPath<some CKFieldProtocol>
+    ) -> Self {
+        desiredKeysBuilder.add(f0, f1, f2, f3, f4)
+        return self
+    }
+
+    public func field(
+        _ f0: FieldPath<some CKFieldProtocol>,
+        _ f1: FieldPath<some CKFieldProtocol>,
+        _ f2: FieldPath<some CKFieldProtocol>,
+        _ f3: FieldPath<some CKFieldProtocol>,
+        _ f4: FieldPath<some CKFieldProtocol>,
+        _ f5: FieldPath<some CKFieldProtocol>
+    ) -> Self {
+        desiredKeysBuilder.add(f0, f1, f2, f3, f4, f5)
+        return self
+    }
+
+    public func field(
+        _ f0: FieldPath<some CKFieldProtocol>,
+        _ f1: FieldPath<some CKFieldProtocol>,
+        _ f2: FieldPath<some CKFieldProtocol>,
+        _ f3: FieldPath<some CKFieldProtocol>,
+        _ f4: FieldPath<some CKFieldProtocol>,
+        _ f5: FieldPath<some CKFieldProtocol>,
+        _ f6: FieldPath<some CKFieldProtocol>
+    ) -> Self {
+        desiredKeysBuilder.add(f0, f1, f2, f3, f4, f5, f6)
+        return self
+    }
+
+    public func field(
+        _ f0: FieldPath<some CKFieldProtocol>,
+        _ f1: FieldPath<some CKFieldProtocol>,
+        _ f2: FieldPath<some CKFieldProtocol>,
+        _ f3: FieldPath<some CKFieldProtocol>,
+        _ f4: FieldPath<some CKFieldProtocol>,
+        _ f5: FieldPath<some CKFieldProtocol>,
+        _ f6: FieldPath<some CKFieldProtocol>,
+        _ f7: FieldPath<some CKFieldProtocol>
+    ) -> Self {
+        desiredKeysBuilder.add(f0, f1, f2, f3, f4, f5, f6, f7)
+        return self
+    }
+
+    public func field(
+        _ f0: FieldPath<some CKFieldProtocol>,
+        _ f1: FieldPath<some CKFieldProtocol>,
+        _ f2: FieldPath<some CKFieldProtocol>,
+        _ f3: FieldPath<some CKFieldProtocol>,
+        _ f4: FieldPath<some CKFieldProtocol>,
+        _ f5: FieldPath<some CKFieldProtocol>,
+        _ f6: FieldPath<some CKFieldProtocol>,
+        _ f7: FieldPath<some CKFieldProtocol>,
+        _ f8: FieldPath<some CKFieldProtocol>
+    ) -> Self {
+        desiredKeysBuilder.add(f0, f1, f2, f3, f4, f5, f6, f7, f8)
+        return self
+    }
+
+    public func field(
+        _ f0: FieldPath<some CKFieldProtocol>,
+        _ f1: FieldPath<some CKFieldProtocol>,
+        _ f2: FieldPath<some CKFieldProtocol>,
+        _ f3: FieldPath<some CKFieldProtocol>,
+        _ f4: FieldPath<some CKFieldProtocol>,
+        _ f5: FieldPath<some CKFieldProtocol>,
+        _ f6: FieldPath<some CKFieldProtocol>,
+        _ f7: FieldPath<some CKFieldProtocol>,
+        _ f8: FieldPath<some CKFieldProtocol>,
+        _ f9: FieldPath<some CKFieldProtocol>
+    ) -> Self {
+        desiredKeysBuilder.add(f0, f1, f2, f3, f4, f5, f6, f7, f8, f9)
         return self
     }
     
@@ -80,15 +180,23 @@ public class CKQueryBuilder<Model> where Model: CKModel {
             return Model(record: record)
         }
         
-        if let fieldToEagerLoad = fieldsToEagerLoad.first {
-            
-            let fields = models.map {
-                $0[keyPath: fieldToEagerLoad] as! (any CKReferenceFieldProtocol)
+//        if let fieldToEagerLoad = fieldsToEagerLoad.first {
+//
+//            let fields = models.map {
+//                $0[keyPath: fieldToEagerLoad] as! (any CKReferenceFieldProtocol)
+//            }
+//
+//            try await eagerLoad(fields)
+//
+//        }
+        
+        let fields = fieldsToEagerLoad.flatMap { fieldKeyPath in
+            models.map {
+                $0[keyPath: fieldKeyPath] as! (any CKReferenceFieldProtocol)
             }
-            
-            try await eagerLoad(fields)
-            
         }
+
+        try await eagerLoad(fields)
         
         return models
         
