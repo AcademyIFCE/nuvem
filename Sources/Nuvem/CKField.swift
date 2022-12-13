@@ -53,7 +53,7 @@ public protocol CKFieldProtocol: AnyObject {
     
     public lazy var publisher = PassthroughSubject<Value, Never>()
     
-    public init(_ key: String, `default` defaultValue: Value) {
+    public init(_ key: String, default defaultValue: Value) {
         self.key = key
         self.defaultValue = defaultValue
     }
