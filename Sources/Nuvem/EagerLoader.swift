@@ -6,12 +6,14 @@ class EagerLoader<Model: CKModel> {
     
     private(set) var desiredKeys: [String: [CKRecord.FieldKey]] = [:]
     
-    func add(_ field: KeyPath<Model, some CKReferenceFieldProtocol>, desiredKeys: [String]?) {
+    func add(_ field: KeyPath<Model, some CKReferenceFieldProtocol>) {
         fields.append(field)
-        if let desiredKeys {
-            let referenceKey = Model()[keyPath: field].key
-            self.desiredKeys[referenceKey, default: []].append(contentsOf: desiredKeys)
-        }
+    }
+    
+    func add<Value>(_ field: KeyPath<Model, CKReferenceField<Value>>, desiredFields: PartialKeyPath<Value>...) {
+        fields.append(field)
+        let referenceKey = Model()[keyPath: field].key
+        self.desiredKeys[referenceKey, default: []].append(contentsOf: desiredFields.map({ CKFieldPath($0).key }))
     }
     
 }

@@ -145,7 +145,7 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     }
     
     public func with<Value>(_ field: KeyPath<Model, CKReferenceField<Value>>) -> Self {
-        eagerLoader.add(field, desiredKeys: nil)
+        eagerLoader.add(field)
         return self
     }
     
@@ -153,8 +153,7 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
         _ f0: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
-        let keys = [f0].map({ CKFieldPath($0).key })
-        eagerLoader.add(referenceField, desiredKeys: keys)
+        eagerLoader.add(referenceField, desiredFields: f0)
         return self
     }
     
@@ -163,8 +162,40 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         _ f0: KeyPath<Value, some CKFieldProtocol>,
         _ f1: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
-        let keys = [f0, f1].map({ CKFieldPath($0).key })
-        eagerLoader.add(referenceField, desiredKeys: keys)
+        eagerLoader.add(referenceField, desiredFields: f0, f1)
+        return self
+    }
+
+    public func with<Value>(
+        _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
+        _ f0: KeyPath<Value, some CKFieldProtocol>,
+        _ f1: KeyPath<Value, some CKFieldProtocol>,
+        _ f2: KeyPath<Value, some CKFieldProtocol>
+    ) -> Self {
+        eagerLoader.add(referenceField, desiredFields: f0, f1, f2)
+        return self
+    }
+
+    public func with<Value>(
+        _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
+        _ f0: KeyPath<Value, some CKFieldProtocol>,
+        _ f1: KeyPath<Value, some CKFieldProtocol>,
+        _ f2: KeyPath<Value, some CKFieldProtocol>,
+        _ f3: KeyPath<Value, some CKFieldProtocol>
+    ) -> Self {
+        eagerLoader.add(referenceField, desiredFields: f0, f1, f2, f3)
+        return self
+    }
+
+    public func with<Value>(
+        _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
+        _ f0: KeyPath<Value, some CKFieldProtocol>,
+        _ f1: KeyPath<Value, some CKFieldProtocol>,
+        _ f2: KeyPath<Value, some CKFieldProtocol>,
+        _ f3: KeyPath<Value, some CKFieldProtocol>,
+        _ f4: KeyPath<Value, some CKFieldProtocol>
+    ) -> Self {
+        eagerLoader.add(referenceField, desiredFields: f0, f1, f2, f3, f4)
         return self
     }
         
