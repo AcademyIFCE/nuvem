@@ -1,16 +1,10 @@
 import CloudKit
 
 public protocol CKFieldValue {
-    
-    associatedtype AttributeValue: AttributeValueProtocol = Self
-    
+        
     static func get(_ value: CKRecordValue?) -> Self?
     static func set(_ value: Self?) -> CKRecordValue?
     
-}
-
-public protocol AttributeValueProtocol {
-    var attributeValue: CVarArg { get }
 }
 
 extension CKFieldValue where Self: CKRecordValueProtocol {
@@ -41,51 +35,29 @@ extension CKFieldValue where Self: RawRepresentable {
     
 }
 
-extension Int: CKFieldValue, AttributeValueProtocol {
-    public var attributeValue: CVarArg {
-        self
-    }
-}
+extension Int: CKFieldValue { }
 
-extension Double: CKFieldValue, AttributeValueProtocol {
-    public var attributeValue: CVarArg {
-        self
-    }
-}
+extension Double: CKFieldValue { }
 
-extension String: CKFieldValue, AttributeValueProtocol {
-    public var attributeValue: CVarArg {
-        self
-    }
-}
+extension String: CKFieldValue { }
 
-extension Bool: CKFieldValue, AttributeValueProtocol {
-    public var attributeValue: CVarArg {
-        NSNumber(booleanLiteral: self)
-    }
-}
+extension Bool: CKFieldValue { }
 
-extension Date: CKFieldValue, AttributeValueProtocol {
-    public var attributeValue: CVarArg {
-        self as NSDate
-    }
-}
+extension Date: CKFieldValue { }
 
-extension Optional: CKFieldValue where Wrapped: CKFieldValue & AttributeValueProtocol {
-    
-    public typealias AttributeValue = Wrapped
-    
+extension Optional: CKFieldValue where Wrapped: CKFieldValue {
+
     public static func get(_ value: CKRecordValue?) -> Self? {
         return Wrapped.get(value)
     }
-    
+
     public static func set(_ value: Self?) -> CKRecordValue? {
         return Wrapped.set(value!)
     }
-    
+
 }
 
-extension Array: CKFieldValue & AttributeValueProtocol where Element: CKRecordValueProtocol {
+extension Array: CKFieldValue where Element: CKRecordValueProtocol {
     
     public static func get(_ value: CKRecordValue?) -> Self? {
         return value as? Self
@@ -93,10 +65,6 @@ extension Array: CKFieldValue & AttributeValueProtocol where Element: CKRecordVa
     
     public static func set(_ value: Self?) -> CKRecordValue? {
         return value as? CKRecordValue
-    }
-    
-    public var attributeValue: CVarArg {
-        fatalError()
     }
     
 }
