@@ -10,9 +10,7 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     let sortDescriptorsBuilder = SortDescriptorsBuilder<Model>()
     let predicateBuilder = PredicateBuilder<Model>()
     
-    var fieldsToEagerLoad = [PartialKeyPath<Model>]()
-    
-    var eagerLoadDesiredKeys: [String: [CKRecord.FieldKey]] = [:]
+    var eagerLoader = EagerLoader<Model>()
     
     init(database: CKDatabase) {
         self.database = database
@@ -147,17 +145,16 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     }
     
     public func with<Value>(_ field: KeyPath<Model, CKReferenceField<Value>>) -> Self {
-        fieldsToEagerLoad.append(field)
+        eagerLoader.add(field, desiredKeys: nil)
         return self
     }
     
     public func with<Value>(
         _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
-        _ field: KeyPath<Value, some CKFieldProtocol>
+        _ f0: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
-        fieldsToEagerLoad.append(referenceField)
-        let referenceKey = Model()[keyPath: referenceField].key
-        eagerLoadDesiredKeys[referenceKey, default: []].append(CKFieldPath(field).key)
+        let keys = [f0].map({ CKFieldPath($0).key })
+        eagerLoader.add(referenceField, desiredKeys: keys)
         return self
     }
     
@@ -166,55 +163,11 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         _ f0: KeyPath<Value, some CKFieldProtocol>,
         _ f1: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
-        fieldsToEagerLoad.append(referenceField)
         let keys = [f0, f1].map({ CKFieldPath($0).key })
-        let referenceKey = Model()[keyPath: referenceField].key
-        eagerLoadDesiredKeys[referenceKey, default: []].append(contentsOf: keys)
+        eagerLoader.add(referenceField, desiredKeys: keys)
         return self
     }
-
-    public func with<Value>(
-        _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
-        _ f0: KeyPath<Value, some CKFieldProtocol>,
-        _ f1: KeyPath<Value, some CKFieldProtocol>,
-        _ f2: KeyPath<Value, some CKFieldProtocol>
-    ) -> Self {
-        fieldsToEagerLoad.append(referenceField)
-        let keys = [f0, f1, f2].map({ CKFieldPath($0).key })
-        let referenceKey = Model()[keyPath: referenceField].key
-        eagerLoadDesiredKeys[referenceKey, default: []].append(contentsOf: keys)
-        return self
-    }
-
-    public func with<Value>(
-        _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
-        _ f0: KeyPath<Value, some CKFieldProtocol>,
-        _ f1: KeyPath<Value, some CKFieldProtocol>,
-        _ f2: KeyPath<Value, some CKFieldProtocol>,
-        _ f3: KeyPath<Value, some CKFieldProtocol>
-    ) -> Self {
-        fieldsToEagerLoad.append(referenceField)
-        let keys = [f0, f1, f2, f3].map({ CKFieldPath($0).key })
-        let referenceKey = Model()[keyPath: referenceField].key
-        eagerLoadDesiredKeys[referenceKey, default: []].append(contentsOf: keys)
-        return self
-    }
-
-    public func with<Value>(
-        _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
-        _ f0: KeyPath<Value, some CKFieldProtocol>,
-        _ f1: KeyPath<Value, some CKFieldProtocol>,
-        _ f2: KeyPath<Value, some CKFieldProtocol>,
-        _ f3: KeyPath<Value, some CKFieldProtocol>,
-        _ f4: KeyPath<Value, some CKFieldProtocol>
-    ) -> Self {
-        fieldsToEagerLoad.append(referenceField)
-        let keys = [f0, f1, f2, f3, f4].map({ CKFieldPath($0).key })
-        let referenceKey = Model()[keyPath: referenceField].key
-        eagerLoadDesiredKeys[referenceKey, default: []].append(contentsOf: keys)
-        return self
-    }
-    
+        
     public func limit(_ limit: Int) -> Self {
         resultsLimit = limit
         return self
@@ -244,12 +197,12 @@ public class CKQueryBuilder<Model> where Model: CKModel {
             return Model(record: record)
         }
         
-        for fieldKeyPath in fieldsToEagerLoad {
+        for fieldKeyPath in eagerLoader.fields {
             let fields = models.map {
                 $0[keyPath: fieldKeyPath] as! (any CKReferenceFieldProtocol)
             }
             let referenceFieldKey = (Model()[keyPath: fieldKeyPath] as! (any CKReferenceFieldProtocol)).key
-            let desiredKeys = eagerLoadDesiredKeys[referenceFieldKey]
+            let desiredKeys = eagerLoader.desiredKeys[referenceFieldKey]
             try await eagerLoad(fields, desiredKeys: desiredKeys)
         }
         
