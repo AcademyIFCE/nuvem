@@ -164,8 +164,8 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     
     public func with<Value>(
         _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
-        _ f0: FieldPath<some CKFieldProtocol>,
-        _ f1: FieldPath<some CKFieldProtocol>
+        _ f0: KeyPath<Value, some CKFieldProtocol>,
+        _ f1: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
         fieldsToEagerLoad.append(referenceField)
         let keys = [f0, f1].map({ CKFieldPath($0).key })
@@ -175,9 +175,9 @@ public class CKQueryBuilder<Model> where Model: CKModel {
 
     public func with<Value>(
         _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
-        _ f0: FieldPath<some CKFieldProtocol>,
-        _ f1: FieldPath<some CKFieldProtocol>,
-        _ f2: FieldPath<some CKFieldProtocol>
+        _ f0: KeyPath<Value, some CKFieldProtocol>,
+        _ f1: KeyPath<Value, some CKFieldProtocol>,
+        _ f2: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
         fieldsToEagerLoad.append(referenceField)
         let keys = [f0, f1, f2].map({ CKFieldPath($0).key })
@@ -187,10 +187,10 @@ public class CKQueryBuilder<Model> where Model: CKModel {
 
     public func with<Value>(
         _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
-        _ f0: FieldPath<some CKFieldProtocol>,
-        _ f1: FieldPath<some CKFieldProtocol>,
-        _ f2: FieldPath<some CKFieldProtocol>,
-        _ f3: FieldPath<some CKFieldProtocol>
+        _ f0: KeyPath<Value, some CKFieldProtocol>,
+        _ f1: KeyPath<Value, some CKFieldProtocol>,
+        _ f2: KeyPath<Value, some CKFieldProtocol>,
+        _ f3: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
         fieldsToEagerLoad.append(referenceField)
         let keys = [f0, f1, f2, f3].map({ CKFieldPath($0).key })
@@ -200,11 +200,11 @@ public class CKQueryBuilder<Model> where Model: CKModel {
 
     public func with<Value>(
         _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
-        _ f0: FieldPath<some CKFieldProtocol>,
-        _ f1: FieldPath<some CKFieldProtocol>,
-        _ f2: FieldPath<some CKFieldProtocol>,
-        _ f3: FieldPath<some CKFieldProtocol>,
-        _ f4: FieldPath<some CKFieldProtocol>
+        _ f0: KeyPath<Value, some CKFieldProtocol>,
+        _ f1: KeyPath<Value, some CKFieldProtocol>,
+        _ f2: KeyPath<Value, some CKFieldProtocol>,
+        _ f3: KeyPath<Value, some CKFieldProtocol>,
+        _ f4: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
         fieldsToEagerLoad.append(referenceField)
         let keys = [f0, f1, f2, f3, f4].map({ CKFieldPath($0).key })
