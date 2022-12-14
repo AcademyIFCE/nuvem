@@ -107,7 +107,7 @@ try await Todo.query(on: <#CKDatabase#>).with(\.$user).all()
 
 ```swift
 
-todos = try await Todo.query(on: .default)
+let todos = try await Todo.query(on: <#CKDatabase#>)
     .filter(\.$isCompleted == true)
     .sort(\.$modificationDate, order: .descending)
     .field(\.$text, \.$isCompleted, \.$user)
