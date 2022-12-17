@@ -211,17 +211,8 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     }
     
     public func all() async throws -> [Model] {
-        
-        var queryCursor: CKQueryOperation.Cursor?
-        var matchResults = [(CKRecord.ID, Result<CKRecord, Error>)]()
-        
-        let response = try await run()
-        
-        if resultsLimit == nil {
-            queryCursor = response.queryCursor
-        }
-        
-        matchResults.append(contentsOf: response.matchResults)
+
+        var (matchResults, queryCursor) = try await run()
         
         while queryCursor != nil {
             let response = try await database.records(continuingMatchFrom: queryCursor!)
