@@ -1,5 +1,36 @@
 import CloudKit
 
+struct EagerLoadQuery<Model> {
+    
+    let fieldKeyPath: PartialKeyPath<Model>
+    
+    let desiredKeys: [CKRecord.FieldKey]?
+        
+    init<Value>(field: KeyPath<Model, CKReferenceField<Value>>) {
+        self.fieldKeyPath = field
+        self.desiredKeys = nil
+    }
+    
+    init<Value>(field: KeyPath<Model, CKReferenceField<Value>>, desiredFields: PartialKeyPath<Value>...) {
+        self.fieldKeyPath = field
+        self.desiredKeys = desiredFields.map({ CKFieldPath($0).key })
+    }
+        
+    func run(for referenceFields: [any CKReferenceFieldProtocol], on database: CKDatabase) async throws {
+        
+        let idsToFetch = Set(referenceFields.compactMap(\.reference?.recordID))
+                
+        let response = try await database.records(for: Array(idsToFetch), desiredKeys: desiredKeys)
+        
+        for field in referenceFields {
+            if let id = field.reference?.recordID, let record = try response[id]?.get() {
+                field.initialiseValue(record)
+            }
+        }
+        
+    }
+}
+
 public class CKQueryBuilder<Model> where Model: CKModel {
     
     let database: CKDatabase
@@ -10,7 +41,7 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     let sortDescriptorsBuilder = SortDescriptorsBuilder<Model>()
     let predicateBuilder = PredicateBuilder<Model>()
     
-    var eagerLoader = EagerLoader<Model>()
+    var eagerLoadQueries = [EagerLoadQuery<Model>]()
     
     init(database: CKDatabase) {
         self.database = database
@@ -145,7 +176,8 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     }
     
     public func with<Value>(_ field: KeyPath<Model, CKReferenceField<Value>>) -> Self {
-        eagerLoader.add(field)
+        let query = EagerLoadQuery(field: field)
+        eagerLoadQueries.append(query)
         return self
     }
     
@@ -153,7 +185,8 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         _ referenceField: KeyPath<Model, CKReferenceField<Value>>,
         _ f0: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
-        eagerLoader.add(referenceField, desiredFields: f0)
+        let query = EagerLoadQuery(field: referenceField, desiredFields: f0)
+        eagerLoadQueries.append(query)
         return self
     }
     
@@ -162,7 +195,8 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         _ f0: KeyPath<Value, some CKFieldProtocol>,
         _ f1: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
-        eagerLoader.add(referenceField, desiredFields: f0, f1)
+        let query = EagerLoadQuery(field: referenceField, desiredFields: f0, f1)
+        eagerLoadQueries.append(query)
         return self
     }
 
@@ -172,7 +206,8 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         _ f1: KeyPath<Value, some CKFieldProtocol>,
         _ f2: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
-        eagerLoader.add(referenceField, desiredFields: f0, f1, f2)
+        let query = EagerLoadQuery(field: referenceField, desiredFields: f0, f1, f2)
+        eagerLoadQueries.append(query)
         return self
     }
 
@@ -183,7 +218,8 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         _ f2: KeyPath<Value, some CKFieldProtocol>,
         _ f3: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
-        eagerLoader.add(referenceField, desiredFields: f0, f1, f2, f3)
+        let query = EagerLoadQuery(field: referenceField, desiredFields: f0, f1, f2, f3)
+        eagerLoadQueries.append(query)
         return self
     }
 
@@ -195,7 +231,8 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         _ f3: KeyPath<Value, some CKFieldProtocol>,
         _ f4: KeyPath<Value, some CKFieldProtocol>
     ) -> Self {
-        eagerLoader.add(referenceField, desiredFields: f0, f1, f2, f3, f4)
+        let query = EagerLoadQuery(field: referenceField, desiredFields: f0, f1, f2, f3, f4)
+        eagerLoadQueries.append(query)
         return self
     }
         
@@ -228,13 +265,14 @@ public class CKQueryBuilder<Model> where Model: CKModel {
             return Model(record: record)
         }
         
-        for fieldKeyPath in eagerLoader.fields {
+        for query in eagerLoadQueries {
+            
             let fields = models.map {
-                $0[keyPath: fieldKeyPath] as! (any CKReferenceFieldProtocol)
+                $0[keyPath: query.fieldKeyPath] as! (any CKReferenceFieldProtocol)
             }
-            let referenceFieldKey = (Model()[keyPath: fieldKeyPath] as! (any CKReferenceFieldProtocol)).key
-            let desiredKeys = eagerLoader.desiredKeys[referenceFieldKey]
-            try await eagerLoad(fields, desiredKeys: desiredKeys)
+            
+            try await query.run(for: fields, on: database)
+            
         }
         
         return models
@@ -268,20 +306,6 @@ public class CKQueryBuilder<Model> where Model: CKModel {
             desiredKeys: desiredKeys,
             resultsLimit: 1
         )
-        
-    }
-    
-    private func eagerLoad(_ fields: [any CKReferenceFieldProtocol], desiredKeys: [CKRecord.FieldKey]?) async throws {
-        
-        let idsToFetch = Set(fields.compactMap(\.reference?.recordID))
-                
-        let response = try await database.records(for: Array(idsToFetch), desiredKeys: desiredKeys)
-        
-        for field in fields {
-            if let id = field.reference?.recordID, let record = try response[id]?.get() {
-                field.initialiseValue(record)
-            }
-        }
         
     }
     
