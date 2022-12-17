@@ -281,6 +281,8 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     
     public func first() async throws -> Model? {
         
+        resultsLimit = 1
+        
         let (matchResults, _) = try await run()
         
         let model = try matchResults.first.map { (_, result) in
@@ -304,7 +306,7 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         return try await database.records(
             matching: query,
             desiredKeys: desiredKeys,
-            resultsLimit: 1
+            resultsLimit: resultsLimit ?? CKQueryOperation.maximumResults
         )
         
     }
