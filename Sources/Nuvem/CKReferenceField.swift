@@ -18,7 +18,16 @@ extension CKReferenceFieldProtocol {
     
     public let key: String
     
-    public var record: CKRecord!
+    public var record: CKRecord! {
+        didSet {
+            if oldValue == nil, let referenceForNilRecord {
+                print("updating 'record' with 'referenceForNilRecord'")
+                record![key] = referenceForNilRecord
+            }
+        }
+    }
+    
+    public var referenceForNilRecord: CKRecord.Reference?
     
     public var reference: CKRecord.Reference? {
         get {
@@ -37,7 +46,11 @@ extension CKReferenceFieldProtocol {
         }
         set {
             value = newValue
-            reference = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
+            if record != nil {
+                reference = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
+            } else {
+                referenceForNilRecord = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
+            }
         }
     }
     
