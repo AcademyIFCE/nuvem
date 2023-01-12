@@ -1,13 +1,31 @@
 import CloudKit
 
-@propertyWrapper public class CKAssetField<Value: CKAssetFieldValue> {
+@propertyWrapper public class CKAssetField<Value: CKAssetFieldValue>: CKFieldProtocol {
     
     public let key: String
     
-    public var record: CKRecord!
-    
+    public var record: CKRecord! {
+        didSet {
+            if oldValue == nil, let assetForNilRecord {
+                print("updating 'record' with 'assetForNilRecord'")
+                record![key] = assetForNilRecord
+            }
+        }
+    }
+
+    private var assetForNilRecord: CKAsset?
+
+    var asset: CKAsset? {
+        get {
+            record[key] as? CKAsset
+        }
+        set {
+            record[key] = newValue
+        }
+    }
+
     var value: Value?
-    
+
     public var wrappedValue: Value {
         get {
             if let value {
@@ -30,7 +48,11 @@ import CloudKit
             let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
             do {
                 try data.write(to: url)
-                record[key] = CKAsset(fileURL: url)
+                if let record {
+                    record[key] = CKAsset(fileURL: url)
+                } else {
+                    assetForNilRecord = CKAsset(fileURL: url)
+                }
             } catch {
                 print(error)
                 fatalError()
