@@ -26,42 +26,52 @@ import CloudKit
 
     var value: Value?
 
+    var defaultValue: Value?
+
     public var wrappedValue: Value {
         get {
             if let value {
                 return value
+            } else if let asset = record[key] as? CKAsset, let url = asset.fileURL, let data = FileManager.default.contents(atPath: url.path) {
+                return Value.get(data)!
+            } else if let defaultValue {
+                return defaultValue
             } else {
-                guard let asset = record[key] as? CKAsset else { fatalError() }
-                guard
-                    let url = asset.fileURL,
-                    let data = FileManager.default.contents(atPath: url.path)
-                else {
-                    fatalError()
-                }
-                value = Value.get(data)
-                return value!
+                fatalError("wrappedValue must be set before access because it has no default value")
             }
         }
         set {
             value = newValue
-            let data = Value.set(newValue)
-            let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-            do {
-                try data.write(to: url)
-                if let record {
-                    record[key] = CKAsset(fileURL: url)
-                } else {
-                    assetForNilRecord = CKAsset(fileURL: url)
+            if let data = Value.set(newValue) {
+                let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+                do {
+                    try data.write(to: url)
+                    if let record {
+                        record[key] = CKAsset(fileURL: url)
+                    } else {
+                        assetForNilRecord = CKAsset(fileURL: url)
+                    }
+                } catch {
+                    print(error)
+                    fatalError()
                 }
-            } catch {
-                print(error)
-                fatalError()
+            } else {
+                if let record {
+                    record[key] = nil
+                } else {
+                    assetForNilRecord = nil
+                }
             }
         }
     }
     
     public var projectedValue: CKAssetField<Value> { self }
     
+    public init(_ key: String, default defaultValue: Value) {
+        self.key = key
+        self.defaultValue = defaultValue
+    }
+
     public init(_ key: String) {
         self.key = key
     }
