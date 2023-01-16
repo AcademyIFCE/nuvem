@@ -29,8 +29,11 @@ public protocol CKFieldProtocol: AnyObject {
 
     public var wrappedValue: Value {
         get {
-            if let recordValue = Value.get(record[key]) {
+            if let record, let recordValue = Value.get(record[key]) {
                 return recordValue
+            }
+            else if let valueForNilRecord {
+                return valueForNilRecord
             }
             else if let defaultValue {
                 return defaultValue
