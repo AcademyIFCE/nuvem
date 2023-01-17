@@ -14,29 +14,29 @@ extension CKReferenceFieldProtocol {
     
 }
 
-@propertyWrapper public class CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol {
+@propertyWrapper public struct CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol {
     
     public var storage = Storage()
     
     public let key: String
     
-    public var record: CKRecord! {
-        didSet {
-            if oldValue == nil, let referenceForNilRecord {
-                print("updating 'record' with 'referenceForNilRecord'")
-                record![key] = referenceForNilRecord
-            }
-        }
-    }
+//    public var record: CKRecord! {
+//        didSet {
+//            if oldValue == nil, let referenceForNilRecord {
+//                print("updating 'record' with 'referenceForNilRecord'")
+//                record![key] = referenceForNilRecord
+//            }
+//        }
+//    }
     
     public var referenceForNilRecord: CKRecord.Reference?
     
     public var reference: CKRecord.Reference? {
         get {
-            record[key] as? CKRecord.Reference
+            storage.record?[key] as? CKRecord.Reference
         }
         set {
-            record[key] = newValue
+            storage.record?[key] = newValue
         }
     }
     
@@ -48,7 +48,7 @@ extension CKReferenceFieldProtocol {
         }
         set {
             value = newValue
-            if record != nil {
+            if storage.record != nil {
                 reference = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
             } else {
                 referenceForNilRecord = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
