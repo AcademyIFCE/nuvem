@@ -32,11 +32,11 @@ extension CKModel {
             field.storage.record = self.record
         }
         
-        let allTimestamps = allKeyPaths.compactMap({ self[keyPath: $0] as? CKTimestamp })
-        
-        for timestamp in allTimestamps {
-            timestamp.record = record
-        }
+//        let allTimestamps = allKeyPaths.compactMap({ self[keyPath: $0] as? CKTimestamp })
+//        
+//        for timestamp in allTimestamps {
+//            timestamp.record = record
+//        }
 
     }
     

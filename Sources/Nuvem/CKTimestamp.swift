@@ -1,6 +1,6 @@
 import CloudKit
 
-@propertyWrapper public class CKTimestamp: CKFieldProtocol {
+@propertyWrapper public struct CKTimestamp: CKFieldProtocol {
     
     public var storage = Storage()
     
@@ -9,7 +9,7 @@ import CloudKit
         case modification = "modificationDate"
     }
     
-    public var record: CKRecord!
+//    public var record: CKRecord!
     
     public var key: String {
         event.rawValue
@@ -20,9 +20,9 @@ import CloudKit
     public var wrappedValue: Date? {
         switch event {
             case .creation:
-                return record.creationDate
+                return storage.record?.creationDate
             case .modification:
-                return record.modificationDate
+                return storage.record?.modificationDate
         }
     }
     

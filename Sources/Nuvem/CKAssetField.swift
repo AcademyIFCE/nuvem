@@ -1,28 +1,28 @@
 import CloudKit
 
-@propertyWrapper public class CKAssetField<Value: CKAssetFieldValue>: CKFieldProtocol {
+@propertyWrapper public struct CKAssetField<Value: CKAssetFieldValue>: CKFieldProtocol {
     
     public var storage = Storage()
     
     public let key: String
     
-    public var record: CKRecord! {
-        didSet {
-            if oldValue == nil, let assetForNilRecord {
-                print("updating 'record' with 'assetForNilRecord'")
-                record![key] = assetForNilRecord
-            }
-        }
-    }
+//    public var record: CKRecord! {
+//        didSet {
+//            if oldValue == nil, let assetForNilRecord {
+//                print("updating 'record' with 'assetForNilRecord'")
+//                record![key] = assetForNilRecord
+//            }
+//        }
+//    }
 
     private var assetForNilRecord: CKAsset?
 
     var asset: CKAsset? {
         get {
-            record[key] as? CKAsset
+            storage.record?[key] as? CKAsset
         }
         set {
-            record[key] = newValue
+            storage.record?[key] = newValue
         }
     }
 
@@ -34,7 +34,7 @@ import CloudKit
         get {
             if let value {
                 return value
-            } else if let asset = record[key] as? CKAsset, let url = asset.fileURL, let data = FileManager.default.contents(atPath: url.path) {
+            } else if let asset = storage.record?[key] as? CKAsset, let url = asset.fileURL, let data = FileManager.default.contents(atPath: url.path) {
                 return Value.get(data)!
             } else if let defaultValue {
                 return defaultValue
@@ -48,7 +48,7 @@ import CloudKit
                 let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
                 do {
                     try data.write(to: url)
-                    if let record {
+                    if let record = storage.record {
                         record[key] = CKAsset(fileURL: url)
                     } else {
                         assetForNilRecord = CKAsset(fileURL: url)
@@ -58,7 +58,7 @@ import CloudKit
                     fatalError()
                 }
             } else {
-                if let record {
+                if let record = storage.record {
                     record[key] = nil
                 } else {
                     assetForNilRecord = nil
