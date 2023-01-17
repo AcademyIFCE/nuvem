@@ -4,7 +4,7 @@ public class FieldStorage {
     
     var key: String
     
-    var record: CKRecord? {
+    public var record: CKRecord? {
         didSet {
             if oldValue == nil, let valueForNilRecord {
                 print("updating 'record' with 'valueForNilRecord'")
