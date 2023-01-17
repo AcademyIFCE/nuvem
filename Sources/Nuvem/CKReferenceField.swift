@@ -16,7 +16,7 @@ extension CKReferenceFieldProtocol {
 
 @propertyWrapper public struct CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol {
     
-    public var storage = Storage()
+    public var storage: Storage
     
     public let key: String
     
@@ -52,6 +52,7 @@ extension CKReferenceFieldProtocol {
                 reference = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
             } else {
                 referenceForNilRecord = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
+                storage.valueForNilRecord = referenceForNilRecord
             }
         }
     }
@@ -60,6 +61,7 @@ extension CKReferenceFieldProtocol {
     
     public init(_ key: String) {
         self.key = key
+        self.storage = Storage(key: key)
     }
     
     @discardableResult

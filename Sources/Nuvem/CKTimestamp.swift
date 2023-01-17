@@ -2,7 +2,7 @@ import CloudKit
 
 @propertyWrapper public struct CKTimestamp: CKFieldProtocol {
     
-    public var storage = Storage()
+    public var storage: Storage
     
     public enum Event: String {
         case creation = "creationDate"
@@ -30,6 +30,7 @@ import CloudKit
     
     public init(_ event: Event) {
         self.event = event
+        self.storage = Storage(key: event.rawValue)
     }
     
 }

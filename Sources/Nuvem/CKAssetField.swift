@@ -2,18 +2,9 @@ import CloudKit
 
 @propertyWrapper public struct CKAssetField<Value: CKAssetFieldValue>: CKFieldProtocol {
     
-    public var storage = Storage()
+    public var storage: Storage
     
     public let key: String
-    
-//    public var record: CKRecord! {
-//        didSet {
-//            if oldValue == nil, let assetForNilRecord {
-//                print("updating 'record' with 'assetForNilRecord'")
-//                record![key] = assetForNilRecord
-//            }
-//        }
-//    }
 
     private var assetForNilRecord: CKAsset?
 
@@ -52,6 +43,7 @@ import CloudKit
                         record[key] = CKAsset(fileURL: url)
                     } else {
                         assetForNilRecord = CKAsset(fileURL: url)
+                        storage.valueForNilRecord = assetForNilRecord
                     }
                 } catch {
                     print(error)
@@ -72,10 +64,12 @@ import CloudKit
     public init(_ key: String, default defaultValue: Value) {
         self.key = key
         self.defaultValue = defaultValue
+        self.storage = Storage(key: key)
     }
 
     public init(_ key: String) {
         self.key = key
+        self.storage = Storage(key: key)
     }
     
 }

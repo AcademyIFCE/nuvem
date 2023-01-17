@@ -2,7 +2,24 @@ import CloudKit
 import Combine
 
 public class Storage {
-    var record: CKRecord?
+    
+    var key: String
+    
+    var record: CKRecord? {
+        didSet {
+            if oldValue == nil, let valueForNilRecord {
+                print("updating 'record' with 'valueForNilRecord'")
+                record![key] = valueForNilRecord
+            }
+        }
+    }
+    
+    var valueForNilRecord: CKRecordValue?
+    
+    init(key: String) {
+        self.key = key
+    }
+    
 }
 
 public protocol CKFieldProtocol {
@@ -12,18 +29,9 @@ public protocol CKFieldProtocol {
 
 @propertyWrapper public struct CKField<Value: CKFieldValue>: CKFieldProtocol {
     
-    public var storage = Storage()
+    public var storage: Storage
     
     public let key: String
-    
-//    public var record: CKRecord! {
-//        didSet {
-//            if oldValue == nil, let valueForNilRecord {
-//                print("updating 'record' with 'valueForNilRecord'")
-//                record![key] = Value.set(valueForNilRecord)
-//            }
-//        }
-//    }
     
     private let defaultValue: Value?
     
@@ -37,7 +45,7 @@ public protocol CKFieldProtocol {
         }
         
     }
-
+    
     public var wrappedValue: Value {
         get {
             if let record = storage.record, let recordValue = Value.get(record[key]) {
@@ -59,22 +67,25 @@ public protocol CKFieldProtocol {
                 record[key] = Value.set(newValue)
             } else {
                 valueForNilRecord = newValue
+                storage.valueForNilRecord = Value.set(newValue)
             }
         }
     }
     
     public var projectedValue: CKField<Value> { self }
-   
+    
     public lazy var publisher = PassthroughSubject<Value, Never>()
     
     public init(_ key: String, default defaultValue: Value) {
         self.key = key
         self.defaultValue = defaultValue
+        self.storage = Storage(key: key)
     }
     
     public init(_ key: String) {
         self.key = key
         self.defaultValue = nil
+        self.storage = Storage(key: key)
     }
     
     func load(on database: CKDatabase) async throws -> Value? {
