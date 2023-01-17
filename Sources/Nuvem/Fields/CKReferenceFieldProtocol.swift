@@ -1,6 +1,6 @@
 import CloudKit
 
-protocol CKReferenceFieldProtocol: CKFieldProtocol {
+protocol CKReferenceFieldProtocol: CKFieldProtocol, AnyObject {
     associatedtype Value: CKModel
     var reference: CKRecord.Reference? { get set }
     var value: Value? { get set }
@@ -9,7 +9,7 @@ protocol CKReferenceFieldProtocol: CKFieldProtocol {
 extension CKReferenceFieldProtocol {
     
     func initialiseValue(_ record: CKRecord) {
-//        value = .init(record: record)
+        value = .init(record: record)
     }
     
 }
