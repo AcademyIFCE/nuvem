@@ -1,22 +1,8 @@
 import CloudKit
 
-protocol CKReferenceFieldProtocol: CKFieldProtocol {
-    associatedtype Value: CKModel
-    var reference: CKRecord.Reference? { get set }
-    var value: Value? { get set }
-}
-
-extension CKReferenceFieldProtocol {
-    
-    func initialiseValue(_ record: CKRecord) {
-//        value = .init(record: record)
-    }
-    
-}
-
 @propertyWrapper public struct CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol {
     
-    public var storage: Storage
+    public var storage: FieldStorage
     
     public let key: String
     
@@ -61,7 +47,7 @@ extension CKReferenceFieldProtocol {
     
     public init(_ key: String) {
         self.key = key
-        self.storage = Storage(key: key)
+        self.storage = FieldStorage(key: key)
     }
     
     @discardableResult

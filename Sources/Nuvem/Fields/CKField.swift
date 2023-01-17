@@ -1,35 +1,9 @@
 import CloudKit
 import Combine
 
-public class Storage {
-    
-    var key: String
-    
-    var record: CKRecord? {
-        didSet {
-            if oldValue == nil, let valueForNilRecord {
-                print("updating 'record' with 'valueForNilRecord'")
-                record![key] = valueForNilRecord
-            }
-        }
-    }
-    
-    var valueForNilRecord: CKRecordValue?
-    
-    init(key: String) {
-        self.key = key
-    }
-    
-}
-
-public protocol CKFieldProtocol {
-    var key: String { get }
-    var storage: Storage { get }
-}
-
 @propertyWrapper public struct CKField<Value: CKFieldValue>: CKFieldProtocol {
     
-    public var storage: Storage
+    public var storage: FieldStorage
     
     public let key: String
     
@@ -79,13 +53,13 @@ public protocol CKFieldProtocol {
     public init(_ key: String, default defaultValue: Value) {
         self.key = key
         self.defaultValue = defaultValue
-        self.storage = Storage(key: key)
+        self.storage = FieldStorage(key: key)
     }
     
     public init(_ key: String) {
         self.key = key
         self.defaultValue = nil
-        self.storage = Storage(key: key)
+        self.storage = FieldStorage(key: key)
     }
     
     func load(on database: CKDatabase) async throws -> Value? {

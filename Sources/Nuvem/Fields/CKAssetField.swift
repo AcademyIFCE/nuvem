@@ -2,7 +2,7 @@ import CloudKit
 
 @propertyWrapper public struct CKAssetField<Value: CKAssetFieldValue>: CKFieldProtocol {
     
-    public var storage: Storage
+    public var storage: FieldStorage
     
     public let key: String
 
@@ -64,12 +64,12 @@ import CloudKit
     public init(_ key: String, default defaultValue: Value) {
         self.key = key
         self.defaultValue = defaultValue
-        self.storage = Storage(key: key)
+        self.storage = FieldStorage(key: key)
     }
 
     public init(_ key: String) {
         self.key = key
-        self.storage = Storage(key: key)
+        self.storage = FieldStorage(key: key)
     }
     
 }
