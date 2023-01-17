@@ -29,7 +29,7 @@ extension CKModel {
         let allFields = allKeyPaths.compactMap({ self[keyPath: $0] as? CKFieldProtocol })
 
         for field in allFields {
-            field.record = self.record
+            field.storage.record = self.record
         }
         
         let allTimestamps = allKeyPaths.compactMap({ self[keyPath: $0] as? CKTimestamp })

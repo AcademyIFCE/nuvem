@@ -2,6 +2,8 @@ import CloudKit
 
 @propertyWrapper public class CKAssetField<Value: CKAssetFieldValue>: CKFieldProtocol {
     
+    public var storage = Storage()
+    
     public let key: String
     
     public var record: CKRecord! {

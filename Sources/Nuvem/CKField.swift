@@ -1,35 +1,46 @@
 import CloudKit
 import Combine
 
-public protocol CKFieldProtocol: AnyObject {
-    var key: String { get }
-    var record: CKRecord! { get set }
+public class Storage {
+    var record: CKRecord?
 }
 
-@propertyWrapper public class CKField<Value: CKFieldValue>: CKFieldProtocol {
+public protocol CKFieldProtocol {
+    var key: String { get }
+    var storage: Storage { get }
+}
+
+@propertyWrapper public struct CKField<Value: CKFieldValue>: CKFieldProtocol {
+    
+    public var storage = Storage()
     
     public let key: String
     
-    public var record: CKRecord! {
-        didSet {
-            if oldValue == nil, let valueForNilRecord {
-                print("updating 'record' with 'valueForNilRecord'")
-                record![key] = Value.set(valueForNilRecord)
-            }
-        }
-    }
+//    public var record: CKRecord! {
+//        didSet {
+//            if oldValue == nil, let valueForNilRecord {
+//                print("updating 'record' with 'valueForNilRecord'")
+//                record![key] = Value.set(valueForNilRecord)
+//            }
+//        }
+//    }
     
     private let defaultValue: Value?
     
     private var valueForNilRecord: Value?
     
     public var value: Value? {
-        Value.get(record![key])
+        if let record = storage.record {
+            return Value.get(record[key])
+        } else {
+            return nil
+        }
+        
     }
 
     public var wrappedValue: Value {
         get {
-            if let record, let recordValue = Value.get(record[key]) {
+            if let record = storage.record, let recordValue = Value.get(record[key]) {
                 return recordValue
             }
             else if let valueForNilRecord {
@@ -44,7 +55,7 @@ public protocol CKFieldProtocol: AnyObject {
         }
         set {
             publisher.send(newValue)
-            if let record {
+            if let record = storage.record {
                 record[key] = Value.set(newValue)
             } else {
                 valueForNilRecord = newValue
@@ -53,7 +64,7 @@ public protocol CKFieldProtocol: AnyObject {
     }
     
     public var projectedValue: CKField<Value> { self }
-    
+   
     public lazy var publisher = PassthroughSubject<Value, Never>()
     
     public init(_ key: String, default defaultValue: Value) {
@@ -67,11 +78,12 @@ public protocol CKFieldProtocol: AnyObject {
     }
     
     func load(on database: CKDatabase) async throws -> Value? {
+        guard let record = storage.record else { return nil }
         let id = record.recordID
         guard let result = try await database.records(for: [id], desiredKeys: [key])[id] else {
             return nil
         }
-        self.record[key] = try result.get()[key]
+        record[key] = try result.get()[key]
         return wrappedValue
     }
     

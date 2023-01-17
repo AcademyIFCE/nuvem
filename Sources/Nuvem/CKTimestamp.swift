@@ -2,6 +2,8 @@ import CloudKit
 
 @propertyWrapper public class CKTimestamp: CKFieldProtocol {
     
+    public var storage = Storage()
+    
     public enum Event: String {
         case creation = "creationDate"
         case modification = "modificationDate"

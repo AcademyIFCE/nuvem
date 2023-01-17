@@ -9,12 +9,14 @@ protocol CKReferenceFieldProtocol: CKFieldProtocol {
 extension CKReferenceFieldProtocol {
     
     func initialiseValue(_ record: CKRecord) {
-        value = .init(record: record)
+//        value = .init(record: record)
     }
     
 }
 
 @propertyWrapper public class CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol {
+    
+    public var storage = Storage()
     
     public let key: String
     
