@@ -26,7 +26,7 @@ extension CKModel {
         
         let allKeyPaths = allKeyPaths.values
         
-        let allFields = allKeyPaths.compactMap({ self[keyPath: $0] as? CKFieldProtocol })
+        let allFields = allKeyPaths.compactMap({ self[keyPath: $0] as? (any CKFieldProtocol) })
 
         for field in allFields {
             field.storage.record = self.record

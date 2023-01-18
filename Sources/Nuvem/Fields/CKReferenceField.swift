@@ -6,15 +6,6 @@ import CloudKit
     
     public let key: String
     
-//    public var record: CKRecord! {
-//        didSet {
-//            if oldValue == nil, let referenceForNilRecord {
-//                print("updating 'record' with 'referenceForNilRecord'")
-//                record![key] = referenceForNilRecord
-//            }
-//        }
-//    }
-    
     public var referenceForNilRecord: CKRecord.Reference?
     
     public var reference: CKRecord.Reference? {

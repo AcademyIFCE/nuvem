@@ -3,30 +3,25 @@ import Combine
 
 @propertyWrapper public struct CKField<Value: CKFieldValue>: CKFieldProtocol {
     
-    public var storage: FieldStorage
+    public var storage: AnyFieldStorage<Value>
     
     public let key: String
     
     private let defaultValue: Value?
-    
-    private var valueForNilRecord: Value?
-    
-    public var value: Value? {
-        if let record = storage.record {
-            return Value.get(record[key])
-        } else {
-            return nil
-        }
         
+    public var value: Value? {
+        didSet {
+            storage.value = value
+        }
     }
     
     public var wrappedValue: Value {
         get {
-            if let record = storage.record, let recordValue = Value.get(record[key]) {
-                return recordValue
+            if let value {
+                return value
             }
-            else if let valueForNilRecord {
-                return valueForNilRecord
+            else if let record = storage.record, let recordValue = Value.get(record[key]) {
+                return recordValue
             }
             else if let defaultValue {
                 return defaultValue
@@ -36,13 +31,8 @@ import Combine
             }
         }
         set {
+            value = newValue
             publisher.send(newValue)
-            if let record = storage.record {
-                record[key] = Value.set(newValue)
-            } else {
-                valueForNilRecord = newValue
-                storage.valueForNilRecord = Value.set(newValue)
-            }
         }
     }
     
@@ -53,13 +43,13 @@ import Combine
     public init(_ key: String, default defaultValue: Value) {
         self.key = key
         self.defaultValue = defaultValue
-        self.storage = FieldStorage(key: key)
+        self.storage = .init(key: key)
     }
     
     public init(_ key: String) {
         self.key = key
         self.defaultValue = nil
-        self.storage = FieldStorage(key: key)
+        self.storage = .init(key: key)
     }
     
     func load(on database: CKDatabase) async throws -> Value? {
