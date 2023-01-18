@@ -1,4 +1,5 @@
 import Foundation
+import CloudKit
 
 public protocol CKFilter<Model> {
     associatedtype Model: CKModel
@@ -97,3 +98,14 @@ public func || <Model: CKModel>(lhs: CKComparisonFilter<Model>, rhs: CKCompariso
     return CKLogicFilter(filters: [lhs, rhs], _operator: .or)
 }
 
+public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: CKRecord.ID) -> CKComparisonFilter<Model> {
+    let key = Model.init()[keyPath: lhs].key
+    let value = rhs
+    return CKComparisonFilter(key: key, value: value, _operator: .isEqualTo)
+}
+
+public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value) -> CKComparisonFilter<Model> {
+    let key = Model.init()[keyPath: lhs].key
+    let value = rhs
+    return CKComparisonFilter(key: key, value: value.record.recordID, _operator: .isEqualTo)
+}
