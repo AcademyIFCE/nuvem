@@ -9,8 +9,6 @@ import CloudKit
         case modification = "modificationDate"
     }
     
-//    public var record: CKRecord!
-    
     public var key: String {
         event.rawValue
     }
@@ -30,7 +28,7 @@ import CloudKit
     
     public init(_ event: Event) {
         self.event = event
-        self.storage = FieldStorage(key: event.rawValue)
+        self.storage = .init(key: nil)
     }
     
 }

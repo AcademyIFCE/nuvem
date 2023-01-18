@@ -1,50 +1,93 @@
 import CloudKit
 
-public protocol FieldStorageProtocol: AnyObject {
-    var record: CKRecord? { get set }
-}
+//public protocol FieldStorageProtocol: AnyObject {
+//    var record: CKRecord? { get set }
+//}
 
-public class AnyFieldStorage<Value: CKFieldValue>: FieldStorageProtocol {
+//public class FieldStorage<Value: CKFieldValue>: FieldStorageProtocol {
+//
+//    var key: String
+//
+//    public var record: CKRecord? {
+//        didSet {
+//            if let record {
+//                print("updating 'record' with 'value'")
+//                record[key] = value
+////                record[key] = Value.set(value)
+//            }
+//        }
+//    }
+//
+//    var value: CKRecordValue?
+//
+//    init(key: String) {
+//        self.key = key
+//    }
+//
+//}
+//
+//public class AssetFieldStorage: FieldStorageProtocol {
+//
+//    var key: String
+//
+//    public var record: CKRecord? {
+//        didSet {
+//            if let record {
+//                print("updating 'record' with 'value'")
+//                record[key] = asset
+//            }
+//        }
+//    }
+//
+//    var asset: CKAsset?
+//
+//    init(key: String) {
+//        self.key = key
+//    }
+//
+//}
+//
+//public class ReferenceFieldStorage: FieldStorageProtocol {
+//
+//    var key: String
+//
+//    public var record: CKRecord? {
+//        didSet {
+//            if let record {
+//                print("updating 'record' with 'value'")
+//                record[key] = reference
+//            }
+//        }
+//    }
+//
+//    var reference: CKRecord.Reference?
+//
+//    init(key: String) {
+//        self.key = key
+//    }
+//
+//}
+
+//public class TimestampStorage: FieldStorageProtocol {
+//    public var record: CKRecord?
+//}
+
+public class FieldStorage {
     
-    var key: String
+    var key: String?
     
     public var record: CKRecord? {
         didSet {
-            if oldValue == nil, let record {
-                print("updating 'record' with 'value'")
-                record[key] = Value.set(value)
+            print("updating 'record' with 'valueForNilRecord'")
+            if let key {
+                record![key] = value
             }
         }
     }
     
-    var value: Value? {
-        didSet {
-            record?[key] = Value.set(value)
-        }
-    }
-        
-    init(key: String) {
-        self.key = key
-    }
+    var value: CKRecordValue?
     
-}
-
-public class FieldStorage: FieldStorageProtocol {
-    
-    var key: String
-    
-    public var record: CKRecord? {
-        didSet {
-            if oldValue == nil, let valueForNilRecord {
-                print("updating 'record' with 'valueForNilRecord'")
-                record![key] = valueForNilRecord
-            }
-        }
-    }
-    
-    var valueForNilRecord: CKRecordValue?
-    
-    init(key: String) {
+    init(key: String?) {
         self.key = key
     }
     

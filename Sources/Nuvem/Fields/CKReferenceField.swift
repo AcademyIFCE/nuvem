@@ -9,11 +9,8 @@ import CloudKit
     public var referenceForNilRecord: CKRecord.Reference?
     
     public var reference: CKRecord.Reference? {
-        get {
-            storage.record?[key] as? CKRecord.Reference
-        }
-        set {
-            storage.record?[key] = newValue
+        didSet {
+            storage.value = reference
         }
     }
     
@@ -25,12 +22,7 @@ import CloudKit
         }
         set {
             value = newValue
-            if storage.record != nil {
-                reference = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
-            } else {
-                referenceForNilRecord = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
-                storage.valueForNilRecord = referenceForNilRecord
-            }
+            storage.value = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
         }
     }
     
@@ -38,7 +30,7 @@ import CloudKit
     
     public init(_ key: String) {
         self.key = key
-        self.storage = FieldStorage(key: key)
+        self.storage = .init(key: key)
     }
     
     @discardableResult

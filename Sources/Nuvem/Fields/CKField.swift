@@ -3,7 +3,7 @@ import Combine
 
 @propertyWrapper public struct CKField<Value: CKFieldValue>: CKFieldProtocol {
     
-    public var storage: AnyFieldStorage<Value>
+    public var storage: FieldStorage
     
     public let key: String
     
@@ -11,7 +11,7 @@ import Combine
         
     public var value: Value? {
         didSet {
-            storage.value = value
+            storage.value = Value.set(value)
         }
     }
     

@@ -32,12 +32,6 @@ extension CKModel {
             field.storage.record = self.record
         }
         
-//        let allTimestamps = allKeyPaths.compactMap({ self[keyPath: $0] as? CKTimestamp })
-//        
-//        for timestamp in allTimestamps {
-//            timestamp.record = record
-//        }
-
     }
     
 }
@@ -79,8 +73,8 @@ extension CKModel {
     public mutating func save(on database: CKDatabase) async throws {
         if record == nil {
             record = CKRecord(recordType: Self.recordType)
-            bindRecordToFields()
         }
+        bindRecordToFields()
         self.record = try await database.save(record)
     }
     

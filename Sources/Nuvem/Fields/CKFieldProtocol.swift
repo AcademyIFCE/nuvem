@@ -1,5 +1,5 @@
 public protocol CKFieldProtocol {
-    associatedtype Storage: FieldStorageProtocol
+//    associatedtype Storage: FieldStorageProtocol
     var key: String { get }
-    var storage: Storage { get }
+    var storage: FieldStorage { get }
 }
