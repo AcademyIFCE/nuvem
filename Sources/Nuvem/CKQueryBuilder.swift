@@ -214,10 +214,12 @@ public class CKQueryBuilder<Model> where Model: CKModel {
 
         var (matchResults, queryCursor) = try await run()
         
-        while queryCursor != nil {
-            let response = try await database.records(continuingMatchFrom: queryCursor!)
-            queryCursor = response.queryCursor
-            matchResults.append(contentsOf: response.matchResults)
+        if resultsLimit == nil {
+            while queryCursor != nil {
+                let response = try await database.records(continuingMatchFrom: queryCursor!)
+                queryCursor = response.queryCursor
+                matchResults.append(contentsOf: response.matchResults)
+            }
         }
         
         let models = try matchResults.map { (_, result) in
