@@ -91,7 +91,9 @@ extension CKModel {
 }
 
 extension Binding where Value: CKModel {
-    
+
+    // MARK: TODO - 🤔
+    @MainActor
     public func save(on database: CKDatabase) async throws {
         try await wrappedValue.save(on: database)
     }
