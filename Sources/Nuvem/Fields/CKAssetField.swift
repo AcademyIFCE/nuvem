@@ -54,5 +54,11 @@ import CloudKit
         self.key = key
         self.storage = .init(key: key)
     }
+
+    public init(_ key: String) where Value: ExpressibleByNilLiteral {
+        self.key = key
+        self.defaultValue = .some(nil)
+        self.storage = FieldStorage(key: key)
+    }
     
 }
