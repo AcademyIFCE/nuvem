@@ -29,7 +29,11 @@ extension CKModel {
         let allFields = allKeyPaths.compactMap({ self[keyPath: $0] as? (any CKFieldProtocol) })
 
         for field in allFields {
-            field.storage.record = self.record
+            if field.storage.record != nil {
+                field.storage.updateRecord()
+            } else {
+                field.storage.record = self.record
+            }
         }
         
     }

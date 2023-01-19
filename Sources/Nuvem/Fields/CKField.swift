@@ -27,6 +27,7 @@ import Combine
                 return defaultValue
             }
             else {
+                print("key = \(key)")
                 fatalError("wrappedValue must be set before access because it has no default value")
             }
         }
