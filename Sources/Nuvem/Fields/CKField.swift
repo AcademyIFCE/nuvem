@@ -11,7 +11,7 @@ import Combine
         
     public var value: Value? {
         didSet {
-            storage.value = Value.set(value)
+            storage.recordValue = Value.set(value)
         }
     }
     

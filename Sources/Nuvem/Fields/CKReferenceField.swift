@@ -10,7 +10,7 @@ import CloudKit
     
     public var reference: CKRecord.Reference? {
         didSet {
-            storage.value = reference
+            storage.recordValue = reference
         }
     }
     
@@ -22,7 +22,7 @@ import CloudKit
         }
         set {
             value = newValue
-            storage.value = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
+            storage.recordValue = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
         }
     }
     

@@ -78,25 +78,24 @@ public class FieldStorage {
     
     public var record: CKRecord? {
         didSet {
-//            print("updating 'record' with 'valueForNilRecord'")
             if let key {
-                value = record![key]
+                recordValue = record![key]
             }
-            if let key, let value {
-                record![key] = value
+            if let key, let recordValue {
+                record![key] = recordValue
             }
         }
     }
     
-    var value: CKRecordValue?
-    
+    var recordValue: CKRecordValue?
+            
     init(key: String?) {
         self.key = key
     }
     
     func updateRecord() {
         if let key {
-            record![key] = value
+            record![key] = recordValue
         }
     }
     

@@ -15,7 +15,11 @@ import CloudKit
             if let value {
                 return value
             }
-            else if let asset = storage.record?[key] as? CKAsset, let url = asset.fileURL, let data = FileManager.default.contents(atPath: url.path) {
+            else if
+                let asset = storage.record?[key] as? CKAsset,
+                let url = asset.fileURL,
+                let data = FileManager.default.contents(atPath: url.path)
+            {
                 return Value.get(data)!
             }
             else if let defaultValue {
@@ -31,13 +35,13 @@ import CloudKit
                 let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
                 do {
                     try data.write(to: url)
-                    storage.value = CKAsset(fileURL: url)
+                    storage.recordValue = CKAsset(fileURL: url)
                 } catch {
                     print(error)
                     fatalError()
                 }
             } else {
-                storage.value = nil
+                storage.recordValue = nil
             }
         }
     }
