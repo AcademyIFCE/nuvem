@@ -78,11 +78,12 @@ public class FieldStorage {
     
     public var record: CKRecord? {
         didSet {
-            if let key {
-                recordValue = record![key]
-            }
-            if let key, let recordValue {
-                record![key] = recordValue
+            guard let key else { return }
+            
+            if let recordValue = record?[key] {
+                self.recordValue = recordValue
+            } else {
+                record?[key] = recordValue
             }
         }
     }
