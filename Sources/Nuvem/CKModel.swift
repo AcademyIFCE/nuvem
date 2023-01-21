@@ -9,39 +9,6 @@ public protocol CKModel: Identifiable {
 
 extension CKModel {
     
-    subscript(checkedMirrorDescendant key: String) -> Any {
-        return Mirror(reflecting: self).descendant(key)!
-    }
-    
-    var allKeyPaths: [String: PartialKeyPath<Self>] {
-        var allKeyPaths = [String: PartialKeyPath<Self>]()
-        let mirror = Mirror(reflecting: self)
-        for case (let key?, _) in mirror.children {
-            allKeyPaths[key] = \Self.[checkedMirrorDescendant: key] as PartialKeyPath
-        }
-        return allKeyPaths
-    }
-    
-    func bindRecordToFields() {
-        
-        let allKeyPaths = allKeyPaths.values
-        
-        let allFields = allKeyPaths.compactMap({ self[keyPath: $0] as? (any CKFieldProtocol) })
-
-        for field in allFields {
-            if field.storage.record != nil {
-                field.storage.updateRecord()
-            } else {
-                field.storage.record = self.record
-            }
-        }
-        
-    }
-    
-}
-
-extension CKModel {
-    
     public static var recordType: CKRecord.RecordType { String(describing: Self.self) }
     
     public var id: String { record.recordID.recordName }
@@ -60,6 +27,41 @@ extension CKModel {
 
 extension CKModel {
     
+    subscript(checkedMirrorDescendant key: String) -> Any {
+        return Mirror(reflecting: self).descendant(key)!
+    }
+    
+    var allKeyPaths: [String: PartialKeyPath<Self>] {
+        var allKeyPaths = [String: PartialKeyPath<Self>]()
+        let mirror = Mirror(reflecting: self)
+        for case (let key?, _) in mirror.children {
+            allKeyPaths[key] = \Self.[checkedMirrorDescendant: key] as PartialKeyPath
+        }
+        return allKeyPaths
+    }
+    
+    var allFields: [any CKFieldProtocol] {
+        allKeyPaths.values.compactMap { self[keyPath: $0] as? (any CKFieldProtocol) }
+    }
+    
+    func bindRecordToFields() {
+        for field in allFields {
+            assert(field.storage.record == nil)
+            field.storage.record = self.record
+        }
+    }
+    
+    func updateRecordWithFields() {
+        for field in allFields {
+            assert(field.storage.record != nil)
+            field.storage.updateRecord()
+        }
+    }
+    
+}
+
+extension CKModel {
+    
     public static func find(id: CKRecord.ID, on database: CKDatabase) async throws -> Self {
         let record = try await database.record(for: id)
         let model = Self(record: record)
@@ -70,15 +72,13 @@ extension CKModel {
         return CKQueryBuilder(database: database)
     }
     
-    public static func fields(fields: PartialKeyPath<Self>...) async throws {
-        fatalError()
-    }
-    
     public mutating func save(on database: CKDatabase) async throws {
         if record == nil {
             record = CKRecord(recordType: Self.recordType)
+            bindRecordToFields()
+        } else {
+            updateRecordWithFields()
         }
-        bindRecordToFields()
         self.record = try await database.save(record)
     }
     
