@@ -28,7 +28,7 @@ import CloudKit
     
     public init(_ event: Event) {
         self.event = event
-        self.storage = .init(key: event.rawValue)
+        self.storage = .init(key: nil)
     }
     
 }
