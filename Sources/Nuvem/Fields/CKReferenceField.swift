@@ -8,11 +8,7 @@ import CloudKit
     
     public var referenceForNilRecord: CKRecord.Reference?
     
-    public var reference: CKRecord.Reference? {
-        didSet {
-            storage.recordValue = reference
-        }
-    }
+    public var reference: CKRecord.Reference? { storage.recordValue as? CKRecord.Reference }
     
     var value: Value?
 

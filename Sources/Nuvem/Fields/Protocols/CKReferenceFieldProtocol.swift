@@ -2,7 +2,7 @@ import CloudKit
 
 protocol CKReferenceFieldProtocol: CKFieldProtocol, AnyObject {
     associatedtype Value: CKModel
-    var reference: CKRecord.Reference? { get set }
+    var reference: CKRecord.Reference? { get }
     var value: Value? { get set }
 }
 
