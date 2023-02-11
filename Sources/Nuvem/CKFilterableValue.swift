@@ -12,7 +12,7 @@ public protocol AttributeValueProtocol {
 
 extension Int: CKFilterableValue, AttributeValueProtocol {
     public var attributeValue: CVarArg {
-        self
+        NSNumber(value: self)
     }
 }
 
