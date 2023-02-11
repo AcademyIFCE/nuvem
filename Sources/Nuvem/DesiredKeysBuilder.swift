@@ -11,14 +11,6 @@ final class DesiredKeysBuilder<Model: CKModel> {
         return fields.map(\.key)
     }
     
-    func add(_ fields: [CKFieldPath<Model>]) {
-        self.fields.append(contentsOf: fields)
-    }
-    
-    func add(_ field: KeyPath<Model, some CKFieldProtocol>) {
-        self.fields.append(CKFieldPath(field))
-    }
-    
     func add(_ fields: PartialKeyPath<Model>...) {
         self.fields.append(contentsOf: fields.map(CKFieldPath.init))
     }
