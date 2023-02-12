@@ -12,9 +12,9 @@ public struct CKFieldPath<Model: CKModel> {
         self.fieldKeyPath = field
     }
     
-    public init(_ field: KeyPath<Model, some CKFieldProtocol>) {
-        self.fieldKeyPath = field
-    }
+//    public init(_ field: KeyPath<Model, some CKFieldProtocol>) {
+//        self.fieldKeyPath = field
+//    }
     
 }
 

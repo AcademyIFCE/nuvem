@@ -1,6 +1,8 @@
 import CloudKit
 
 @propertyWrapper public struct CKTimestamp: CKFieldProtocol {
+    public var recordValue: CKRecordValue?
+    
     
     public var storage: FieldStorage
     

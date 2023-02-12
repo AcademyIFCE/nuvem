@@ -1,5 +1,16 @@
+import CloudKit
+
 public protocol CKFieldProtocol {
-//    associatedtype Storage: FieldStorageProtocol
     var key: String { get }
+    var recordValue: CKRecordValue? { get }
     var storage: FieldStorage { get }
+}
+
+extension CKFieldProtocol {
+    
+    func updateRecord() {
+        storage.recordValue = recordValue
+        storage.updateRecord()
+    }
+    
 }

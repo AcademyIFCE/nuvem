@@ -2,6 +2,8 @@ import CloudKit
 
 @propertyWrapper public class CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol {
     
+    public var recordValue: CKRecordValue?
+    
     public var storage: FieldStorage
     
     public let key: String
