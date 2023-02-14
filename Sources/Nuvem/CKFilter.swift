@@ -40,7 +40,7 @@ public struct CKLogicFilter<Model: CKModel>: CKFilter {
         case or = "OR"
     }
     
-    let filters: [CKComparisonFilter<Model>]
+    let filters: [any CKFilter]
     let _operator: Operator
     
     public var predicate: NSPredicate {
@@ -90,14 +90,6 @@ public func <= <Model: CKModel, Value: CKFilterableValue>(lhs: KeyPath<Model, CK
     return CKComparisonFilter(key: key, value: value.attributeValue, _operator: .isLessThanOrEqualTo)
 }
 
-public func && <Model: CKModel>(lhs: CKComparisonFilter<Model>, rhs: CKComparisonFilter<Model>) -> CKLogicFilter<Model> {
-    return CKLogicFilter(filters: [lhs, rhs], _operator: .and)
-}
-
-public func || <Model: CKModel>(lhs: CKComparisonFilter<Model>, rhs: CKComparisonFilter<Model>) -> CKLogicFilter<Model> {
-    return CKLogicFilter(filters: [lhs, rhs], _operator: .or)
-}
-
 public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: String) -> CKComparisonFilter<Model> {
     let key = Model.init()[keyPath: lhs].key
     let value = CKRecord.ID(recordName: rhs)
@@ -108,4 +100,12 @@ public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceF
     let key = Model.init()[keyPath: lhs].key
     let value = rhs
     return CKComparisonFilter(key: key, value: value.record.recordID, _operator: .isEqualTo)
+}
+
+public func && <Model: CKModel>(lhs: some CKFilter<Model>, rhs: some CKFilter<Model>) -> CKLogicFilter<Model> {
+    return CKLogicFilter(filters: [lhs, rhs], _operator: .and)
+}
+
+public func || <Model: CKModel>(lhs: some CKFilter<Model>, rhs: some CKFilter<Model>) -> CKLogicFilter<Model> {
+    return CKLogicFilter(filters: [lhs, rhs], _operator: .or)
 }
