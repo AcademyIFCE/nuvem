@@ -109,3 +109,21 @@ public func && <Model: CKModel>(lhs: some CKFilter<Model>, rhs: some CKFilter<Mo
 public func || <Model: CKModel>(lhs: some CKFilter<Model>, rhs: some CKFilter<Model>) -> CKLogicFilter<Model> {
     return CKLogicFilter(filters: [lhs, rhs], _operator: .or)
 }
+
+extension CKFilter {
+    
+    static func isDateInToday<Model: CKModel, Value: CKFilterableValue>(_ field: KeyPath<Model, CKField<Value>>) -> Self where Value.AttributeValue == Date, Self == CKLogicFilter<Model> {
+        return isDate(field, inSameDayAs: .now)
+    }
+    
+    static func isDate<Model: CKModel, Value: CKFilterableValue>(_ field: KeyPath<Model, CKField<Value>>, inSameDayAs date: Date) -> Self where Value.AttributeValue == Date, Self == CKLogicFilter<Model> {
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!.addingTimeInterval(-1)
+        return isDate(field, in: startOfDay...endOfDay)
+    }
+    
+    static func isDate<Model: CKModel, Value: CKFilterableValue>(_ field: KeyPath<Model, CKField<Value>>, in range: ClosedRange<Date>) -> Self where Value.AttributeValue == Date, Self == CKLogicFilter<Model> {
+        return field >= range.lowerBound && field <= range.upperBound
+    }
+    
+}
