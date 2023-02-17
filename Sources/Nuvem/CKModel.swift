@@ -54,7 +54,7 @@ extension CKModel {
     func updateRecordWithFields() {
         for field in allFields {
             assert(field.storage.record != nil)
-            field.storage.updateRecord()
+            field.updateRecord()
         }
     }
     
