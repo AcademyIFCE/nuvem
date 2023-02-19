@@ -1,10 +1,12 @@
 import CloudKit
 
-@propertyWrapper public struct CKAssetField<Value: CKAssetFieldValue>: CKFieldProtocol {
+@propertyWrapper public struct CKAssetField<Value: CKAssetFieldValue>: CKFieldProtocol, _CKFieldProtocol {
+    
+    public var record: CKRecord? { storage.record }
     
     public var recordValue: CKRecordValue?
     
-    public var storage: FieldStorage
+    var storage: FieldStorage
     
     public let key: String
 
@@ -64,7 +66,7 @@ import CloudKit
     public init(_ key: String) where Value: ExpressibleByNilLiteral {
         self.key = key
         self.defaultValue = .some(nil)
-        self.storage = FieldStorage(key: key)
+        self.storage = .init(key: key)
     }
     
 }

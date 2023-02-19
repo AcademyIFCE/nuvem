@@ -1,14 +1,16 @@
 import CloudKit
 
-@propertyWrapper public class CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol {
+@propertyWrapper public class CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol, _CKFieldProtocol {
     
-    public var recordValue: CKRecordValue?
+    public var record: CKRecord? { storage.record }
     
-    public var storage: FieldStorage
+    public private(set) var recordValue: CKRecordValue?
+    
+    var storage: FieldStorage
     
     public let key: String
     
-    public var referenceForNilRecord: CKRecord.Reference?
+    var referenceForNilRecord: CKRecord.Reference?
     
     public var reference: CKRecord.Reference? { storage.recordValue as? CKRecord.Reference }
     

@@ -40,8 +40,8 @@ extension CKModel {
         return allKeyPaths
     }
     
-    var allFields: [any CKFieldProtocol] {
-        allKeyPaths.values.compactMap { self[keyPath: $0] as? (any CKFieldProtocol) }
+    var allFields: [any _CKFieldProtocol] {
+        allKeyPaths.values.compactMap { self[keyPath: $0] as? (any _CKFieldProtocol) }
     }
     
     func bindRecordToFields() {

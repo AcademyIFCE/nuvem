@@ -1,10 +1,12 @@
 import CloudKit
 
-@propertyWrapper public struct CKTimestamp: CKFieldProtocol {
+@propertyWrapper public struct CKTimestamp: CKFieldProtocol, _CKFieldProtocol {
+    
+    public var record: CKRecord? { storage.record }
+    
     public var recordValue: CKRecordValue?
     
-    
-    public var storage: FieldStorage
+    var storage: FieldStorage
     
     public enum Event: String {
         case creation = "creationDate"

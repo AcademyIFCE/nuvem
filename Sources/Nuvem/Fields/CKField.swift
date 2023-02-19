@@ -1,17 +1,19 @@
 import CloudKit
 import Combine
 
-@propertyWrapper public struct CKField<Value: CKFieldValue>: CKFieldProtocol {
+@propertyWrapper public struct CKField<Value: CKFieldValue>: CKFieldProtocol, _CKFieldProtocol {
    
+    public var record: CKRecord? { storage.record }
+    
     public let key: String
     
-    public var recordValue: CKRecordValue?
+    public private(set) var recordValue: CKRecordValue?
     
-    public var storage: FieldStorage
+    var storage: FieldStorage
     
     private let defaultValue: Value?
         
-    public var value: Value? {
+    private(set) var value: Value? {
         didSet {
             recordValue = Value.set(value)
             storage.recordValue = recordValue

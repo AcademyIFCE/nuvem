@@ -1,6 +1,6 @@
 import CloudKit
 
-public class FieldStorage {
+class FieldStorage {
     
     let key: String?
     
