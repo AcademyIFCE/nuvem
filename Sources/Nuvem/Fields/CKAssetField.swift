@@ -6,6 +6,8 @@ import CloudKit
     
     public var recordValue: CKRecordValue?
     
+    public var asset: CKAsset? { recordValue as? CKAsset }
+    
     var storage: FieldStorage
     
     public let key: String

@@ -1,15 +1,14 @@
 import CloudKit
 
-protocol CKReferenceFieldProtocol: CKFieldProtocol, AnyObject {
-    associatedtype Value: CKModel
+protocol CKReferenceFieldProtocol: CKFieldProtocol, _CKFieldProtocol {
     var reference: CKRecord.Reference? { get }
-    var value: Value? { get set }
+//    var value: Value? { get set }
 }
 
-extension CKReferenceFieldProtocol {
-    
-    func initialiseValue(_ record: CKRecord) {
-        value = .init(record: record)
-    }
-    
-}
+//extension CKReferenceFieldProtocol {
+//    
+//    func initialiseValue(_ record: CKRecord) {
+//        value = .init(record: record)
+//    }
+//    
+//}
