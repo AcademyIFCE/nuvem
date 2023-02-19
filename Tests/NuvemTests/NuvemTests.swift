@@ -32,6 +32,12 @@ final class NuvemTests: XCTestCase {
         @CKReferenceField("r")
         var r: M2?
         
+        @CKReferenceField("rf")
+        var rf: M2?
+        
+        @CKAssetField("af")
+        var af: Data?
+        
     }
     
     struct M2: CKModel {
@@ -114,6 +120,20 @@ final class NuvemTests: XCTestCase {
         
     }
     
+    func testCKReferenceField() {
+        
+        @CKReferenceField("m2") var m2: M2?
+        
+        let r = CKRecord(recordType: M2.recordType)
+        
+        m2 = M2(record: r)
+        
+        XCTAssertNotNil(m2)
+        
+        XCTAssertEqual(_m2.reference?.recordID, r.recordID)
+        
+    }
+    
     func testCKModel() {
         
         let record = CKRecord(recordType: "M")
@@ -131,20 +151,28 @@ final class NuvemTests: XCTestCase {
         XCTAssertTrue(m.$c.storage.record?.recordID == record.recordID)
         
         m.a = 5
-        m.b = 5
+        m.rf = nil
+        m.af = nil
         
         let mCopy = m
         
         m.a = 6
-        m.b = 6
+        m.rf = M2(record: CKRecord(recordType: "M2"))
+        m.af = Data()
+                
+        m.updateRecordWithFields()
+        
+        XCTAssertEqual(record["a"]!, 6)
+        XCTAssertNotNil(record["rf"])
+        XCTAssertNotNil(record["af"])
         
         m = mCopy
         
         m.updateRecordWithFields()
         
-        
-        XCTAssertEqual(record["b"]!, 5)
         XCTAssertEqual(record["a"]!, 5)
+        XCTAssertNil(record["rf"])
+        XCTAssertNil(record["af"])
                 
     }
     
@@ -207,90 +235,90 @@ final class NuvemTests: XCTestCase {
     }
     
     func testFilters() throws {
-        
+
         let f1: CKComparisonFilter<M> = \.$a == 1
-        
+
         XCTAssertEqual(f1._operator, .isEqualTo)
-        
+
         let f2: CKComparisonFilter<M> = \.$a != 1
-        
+
         XCTAssertEqual(f2._operator, .isNotEqualTo)
-        
+
         let f3: CKComparisonFilter<M> = \.$a > 1
-        
+
         XCTAssertEqual(f3._operator, .isGreaterThan)
-        
+
         let f4: CKComparisonFilter<M> = \.$a >= 1
-        
+
         XCTAssertEqual(f4._operator, .isGreaterThanOrEqualTo)
-        
+
         let f5: CKComparisonFilter<M> = \.$a < 1
-        
+
         XCTAssertEqual(f5._operator, .isLessThan)
-        
+
         let f6: CKComparisonFilter<M> = \.$a <= 1
-        
+
         XCTAssertEqual(f6._operator, .isLessThanOrEqualTo)
-        
+
         let f7: CKLogicFilter<M> = f1 && f2
-        
+
         XCTAssertEqual(f7._operator, .and)
-        
+
         let f8: CKLogicFilter<M> = f1 || f2
-        
+
         XCTAssertEqual(f8._operator, .or)
-        
+
         let r = M2(record: CKRecord(recordType: "M2"))
-        
+
         let f9: CKComparisonFilter<M> = \.$r == r.id
-        
+
         XCTAssertEqual(f9._operator, .isEqualTo)
-        
+
         let f10: CKComparisonFilter<M> = \.$r == r
-        
+
         XCTAssertEqual(f10._operator, .isEqualTo)
-        
+
     }
     
     func testPredicates() {
         
-        let f1: CKComparisonFilter<M> = \.$a == 1
+        let f1: some CKFilter<M> = \.$a == 1
         
         let p1 = f1.predicate
         
         XCTAssertEqual(p1, NSPredicate(format: "a == %@", NSNumber(value: 1)))
         
-        let f2: CKComparisonFilter<M> = \.$b == 1.5
+        let f2: some CKFilter<M> = \.$b == 1.5
         
         let p2 = f2.predicate
         
         XCTAssertEqual(p2, NSPredicate(format: "b == %@", 1.5))
         
-        let f3: CKComparisonFilter<M> = \.$c == "hello"
+        let f3: some CKFilter<M> = \.$c == "hello"
         
         let p3 = f3.predicate
         
         XCTAssertEqual(p3, NSPredicate(format: "c == %@", "hello"))
         
-        let f4: CKComparisonFilter<M> = \.$d == true
+        let f4: some CKFilter<M> = \.$d == true
         
         let p4 = f4.predicate
         
         XCTAssertEqual(p4, NSPredicate(format: "d == %@", NSNumber(booleanLiteral: true)))
         
-        let f5: CKComparisonFilter<M> = \.$e == Date(timeIntervalSinceReferenceDate: 1000)
+        let f5: some CKFilter<M> = \.$e == Date(timeIntervalSinceReferenceDate: 1000)
         
         let p5 = f5.predicate
         
         XCTAssertEqual(p5, NSPredicate(format: "e == %@", Date(timeIntervalSinceReferenceDate: 1000) as NSDate))
         
-        let f6: CKLogicFilter<M> = (\.$a == 1) && (\.$b == 1.5)
+        let f6: some CKFilter<M> = (\.$a == 1) && (\.$b == 1.5)
         
         let p6 = f6.predicate
         
         XCTAssertEqual(p6, NSCompoundPredicate(andPredicateWithSubpredicates: [p1, p2]))
         
-        let f7: CKLogicFilter<M> = (\.$a == 1) || (\.$b == 1.5)
+        let f7: some CKFilter<M> = (\.$a == 1) || (\.$b == 1.5)
         
         let p7 = f7.predicate
         
@@ -308,6 +336,30 @@ final class NuvemTests: XCTestCase {
         
         XCTAssertEqual(p9, NSCompoundPredicate(orPredicateWithSubpredicates: [p7, p3]))
         
+        let f10: CKLogicFilter<M> = .isDateInToday(\.$e)
+                
+        let f11: CKLogicFilter<M> = .isDateInThisMonth(\.$e)
+        
+        let f12: CKLogicFilter<M> = .isDateInThisYear(\.$e)
+        
+        let f13: CKLogicFilter<M> = .isDate(\.$e, inSameHourAs: .now)
+        
+        let f14: CKLogicFilter<M> = .isDate(\.$e, inSameMinuteAs: .now)
+        
+        let f15: CKPredicateFilter<M> = .predicate(format: "a == %@", NSNumber(value: 1))
+        
+        let builder = PredicateBuilder<M>()
+        
+        XCTAssertEqual(builder.predicate, NSPredicate(value: true))
+        
+        builder.add(f1)
+        
+        XCTAssertEqual(builder.predicate, p1)
+        
+        builder.add(f2)
+        
+        XCTAssertEqual(builder.predicate, NSCompoundPredicate(andPredicateWithSubpredicates: [p1, p2]))
+
     }
     
     func testSort() {
@@ -326,6 +378,13 @@ final class NuvemTests: XCTestCase {
         XCTAssertEqual(d2.key, "a")
         XCTAssertFalse(d2.ascending)
         
+        let builder = SortDescriptorsBuilder<M>()
+        
+        builder.add(s1)
+        builder.add(s2)
+        
+        XCTAssertEqual(builder.sortDescriptors, [d1, d2])
+                
     }
     
 }
