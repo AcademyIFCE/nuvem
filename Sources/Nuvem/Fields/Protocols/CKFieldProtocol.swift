@@ -14,3 +14,9 @@ extension CKFieldProtocol {
     }
     
 }
+
+extension KeyPath where Root: CKModel, Value: CKFieldProtocol {
+    
+    var key: String { Root()[keyPath: self].key }
+    
+}
