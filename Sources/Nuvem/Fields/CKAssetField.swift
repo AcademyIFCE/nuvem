@@ -39,13 +39,13 @@ import CloudKit
                 let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
                 do {
                     try data.write(to: url)
-                    storage.recordValue = CKAsset(fileURL: url)
+                    recordValue = CKAsset(fileURL: url)
                 } catch {
                     print(error)
                     fatalError()
                 }
             } else {
-                storage.recordValue = nil
+                recordValue = nil
             }
         }
     }
