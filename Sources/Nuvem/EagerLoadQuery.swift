@@ -24,7 +24,8 @@ struct EagerLoadQuery<Model> {
         
         for field in referenceFields {
             if let id = field.reference?.recordID, let record = try response[id]?.get() {
-                field.initialiseValue(record)
+                field.storage.record = record
+//                field.initialiseValue(record)
             }
         }
         
