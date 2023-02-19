@@ -16,11 +16,6 @@ public class CKQueryBuilder<Model> where Model: CKModel {
         self.database = database
     }
     
-    public func filter(_ predicate: NSPredicate) -> Self {
-        predicateBuilder.add(predicate)
-        return self
-    }
-    
     public func filter(_ filter: some CKFilter<Model>) -> Self {
         predicateBuilder.add(filter)
         return self
