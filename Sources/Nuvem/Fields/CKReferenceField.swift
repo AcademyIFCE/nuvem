@@ -1,6 +1,6 @@
 import CloudKit
 
-@propertyWrapper public struct CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol {
+@propertyWrapper public struct CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol, _CKFieldProtocol {
     
     public var record: CKRecord? { storage.record }
     

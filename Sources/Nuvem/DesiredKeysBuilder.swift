@@ -2,7 +2,7 @@ import CloudKit
 
 final class DesiredKeysBuilder<Model: CKModel> {
     
-    var fields: [CKFieldPath<Model>] = []
+    var fields: [PartialKeyPath<Model>] = []
     
     var desiredKeys: [CKRecord.FieldKey]? {
         guard !fields.isEmpty else {
@@ -12,7 +12,7 @@ final class DesiredKeysBuilder<Model: CKModel> {
     }
     
     func add(_ fields: PartialKeyPath<Model>...) {
-        self.fields.append(contentsOf: fields.map(CKFieldPath.init))
+        self.fields.append(contentsOf: fields)
     }
     
 }

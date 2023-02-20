@@ -2,7 +2,7 @@ import CloudKit
 
 public class CKQueryBuilder<Model> where Model: CKModel {
     
-    let database: CKDatabase
+    let database: CKDatabase!
     
     var resultsLimit: Int?
     
@@ -11,6 +11,10 @@ public class CKQueryBuilder<Model> where Model: CKModel {
     let predicateBuilder = PredicateBuilder<Model>()
     
     var eagerLoadQueries = [EagerLoadQuery<Model>]()
+    
+    init() {
+        self.database = nil
+    }
     
     init(database: CKDatabase) {
         self.database = database

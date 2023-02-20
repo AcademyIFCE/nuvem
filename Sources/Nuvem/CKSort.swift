@@ -18,9 +18,8 @@ public struct CKSort<Model: CKModel> {
 
 extension CKSort {
     
-    init(_ keyPath: KeyPath<Model, some CKFieldProtocol>, order: Order) {
-        let key = Model.init()[keyPath: keyPath].key
-        self.init(key: key, order: order)
+    init(_ field: KeyPath<Model, some CKFieldProtocol>, order: Order) {
+        self.init(key: field.key, order: order)
     }
     
 }

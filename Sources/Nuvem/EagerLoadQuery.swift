@@ -13,7 +13,7 @@ struct EagerLoadQuery<Model> {
     
     init<Value>(field: KeyPath<Model, CKReferenceField<Value>>, desiredFields: PartialKeyPath<Value>...) {
         self.fieldKeyPath = field
-        self.desiredKeys = desiredFields.map({ CKFieldPath($0).key })
+        self.desiredKeys = desiredFields.map(\.key)
     }
         
     func run(for referenceFields: [any CKReferenceFieldProtocol], on database: CKDatabase) async throws {
@@ -24,8 +24,7 @@ struct EagerLoadQuery<Model> {
         
         for field in referenceFields {
             if let id = field.reference?.recordID, let record = try response[id]?.get() {
-                field.storage.record = record
-//                field.initialiseValue(record)
+                (field as! _CKFieldProtocol).storage.record = record
             }
         }
         

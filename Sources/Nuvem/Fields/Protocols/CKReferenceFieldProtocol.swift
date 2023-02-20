@@ -1,6 +1,6 @@
 import CloudKit
 
-protocol CKReferenceFieldProtocol: CKFieldProtocol, _CKFieldProtocol {
+protocol CKReferenceFieldProtocol: CKFieldProtocol {
     var reference: CKRecord.Reference? { get }
 //    var value: Value? { get set }
 }
