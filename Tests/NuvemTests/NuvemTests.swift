@@ -41,7 +41,17 @@ final class NuvemTests: XCTestCase {
     }
     
     struct M2: CKModel {
+        
         var record: CKRecord!
+        
+        @CKField("f1")
+        var f1: Int
+        
+        @CKField("f2")
+        var f2: Int
+        
+        @CKField("f3")
+        var f3: Int
     }
     
     func testCKFieldValue_RawRepresentable() {
@@ -384,6 +394,17 @@ final class NuvemTests: XCTestCase {
         builder.add(s2)
         
         XCTAssertEqual(builder.sortDescriptors, [d1, d2])
+                
+    }
+    
+    func testCKQueryBuilder() {
+        
+        let query = CKQueryBuilder<M>()
+        
+        _ = query.filter(\.$a == 1)
+        _ = query.filter(\.$c == "hello")
+        
+        XCTAssertEqual(query.predicateBuilder.predicate, NSPredicate(format: "a == %@ && c == %@", NSNumber(value: 1), "hello"))
                 
     }
     
