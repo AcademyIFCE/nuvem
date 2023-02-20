@@ -1,6 +1,6 @@
 import CloudKit
 
-public class CKQueryBuilder<Model> where Model: CKModel {
+public final class CKQueryBuilder<Model> where Model: CKModel {
     
     let database: CKDatabase!
     
