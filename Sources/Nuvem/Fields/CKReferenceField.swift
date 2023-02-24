@@ -6,7 +6,7 @@ import CloudKit
     
     public private(set) var recordValue: CKRecordValue?
     
-    public var reference: CKRecord.Reference? { (recordValue ?? record?[key]) as? CKRecord.Reference }
+    public var reference: CKRecord.Reference? { recordValue as? CKRecord.Reference }
     
     var storage: FieldStorage
     
