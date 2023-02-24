@@ -48,6 +48,7 @@ extension CKModel {
         for field in allFields {
             assert(field.storage.record == nil)
             field.storage.record = self.record
+            field.updateRecord()
         }
     }
     
