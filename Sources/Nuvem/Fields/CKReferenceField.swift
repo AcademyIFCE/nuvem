@@ -2,9 +2,11 @@ import CloudKit
 
 @propertyWrapper public struct CKReferenceField<Value: CKModel>: CKReferenceFieldProtocol, _CKFieldProtocol {
     
+    var hasBeenSet: Bool = false
+    
     public var record: CKRecord? { storage.record }
     
-    public private(set) var recordValue: CKRecordValue?
+    public var recordValue: CKRecordValue?
     
     public var reference: CKRecord.Reference? { recordValue as? CKRecord.Reference }
     
@@ -21,6 +23,7 @@ import CloudKit
             return value
         }
         set {
+            hasBeenSet = true
             value = newValue
             recordValue = newValue.map({ CKRecord.Reference(record: $0.record, action: .none) })
         }

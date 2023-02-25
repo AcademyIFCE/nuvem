@@ -108,6 +108,8 @@ final class NuvemTests: XCTestCase {
         
         _f.storage.record = r
         
+        _f.updateRecord()
+        
         XCTAssertEqual(r["a"], 2)
         
     }
@@ -124,7 +126,7 @@ final class NuvemTests: XCTestCase {
         
         XCTAssertNil(r["a"])
         
-        _f.storage.updateRecord()
+        _f.updateRecord()
         
         XCTAssertEqual(r["a"], 3)
         
@@ -172,7 +174,7 @@ final class NuvemTests: XCTestCase {
                 
         m.updateRecordWithFields()
         
-        XCTAssertEqual(record["a"]!, 6)
+        XCTAssertEqual(record["a"], 6)
         XCTAssertNotNil(record["rf"])
         XCTAssertNotNil(record["af"])
         
@@ -180,9 +182,38 @@ final class NuvemTests: XCTestCase {
         
         m.updateRecordWithFields()
         
-        XCTAssertEqual(record["a"]!, 5)
+        XCTAssertEqual(record["a"], 5)
         XCTAssertNil(record["rf"])
         XCTAssertNil(record["af"])
+                
+    }
+    
+    func testCKModel2() {
+        
+        let ref = CKRecord(recordType: M2.recordType)
+        
+        var m = M()
+        
+        m.a = 1
+        m.r = M2(record: ref)
+        
+        XCTAssertNil(m.record)
+        
+        m._save()
+        
+        let record = m.record
+        
+        XCTAssertNotNil(record)
+        
+        XCTAssertEqual(record?["a"], 1)
+        XCTAssertEqual(record?["r"], CKRecord.Reference(recordID: ref.recordID, action: .none))
+        
+        m = M(record: record)
+        
+        m._save()
+        
+        XCTAssertEqual(record?["a"], 1)
+        XCTAssertEqual(record?["r"], CKRecord.Reference(recordID: ref.recordID, action: .none))
                 
     }
     

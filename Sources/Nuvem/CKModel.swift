@@ -53,7 +53,8 @@ extension CKModel {
     
     func updateRecordWithFields() {
         for field in allFields {
-            assert(field.storage.record != nil)
+            field.storage.record = self.record
+//            assert(field.storage.record != nil)
             field.updateRecord()
         }
     }
@@ -61,6 +62,13 @@ extension CKModel {
 }
 
 extension CKModel {
+    
+    mutating func _save() {
+        if record == nil {
+            record = CKRecord(recordType: Self.recordType)
+        }
+        updateRecordWithFields()
+    }
     
     public static func find(id: CKRecord.ID, on database: CKDatabase) async throws -> Self {
         let record = try await database.record(for: id)
@@ -73,12 +81,7 @@ extension CKModel {
     }
     
     public mutating func save(on database: CKDatabase) async throws {
-        if record == nil {
-            record = CKRecord(recordType: Self.recordType)
-            bindRecordToFields()
-        } else {
-            updateRecordWithFields()
-        }
+        _save()
         self.record = try await database.save(record)
     }
     

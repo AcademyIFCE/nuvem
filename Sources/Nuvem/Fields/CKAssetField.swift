@@ -2,6 +2,8 @@ import CloudKit
 
 @propertyWrapper public struct CKAssetField<Value: CKAssetFieldValue>: CKFieldProtocol, _CKFieldProtocol {
     
+    var hasBeenSet: Bool = false
+    
     public var record: CKRecord? { storage.record }
     
     public var recordValue: CKRecordValue?
@@ -36,6 +38,7 @@ import CloudKit
             }
         }
         set {
+            hasBeenSet = true
             value = newValue
             if let data = Value.set(newValue) {
                 let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

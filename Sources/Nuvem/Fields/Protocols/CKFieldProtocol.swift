@@ -2,7 +2,6 @@ import CloudKit
 
 public protocol CKFieldProtocol {
     var key: String { get }
-    var recordValue: CKRecordValue? { get }
     var record: CKRecord? { get }
 }
 
@@ -20,6 +19,8 @@ extension PartialKeyPath where Root: CKModel {
 }
 
 protocol _CKFieldProtocol: CKFieldProtocol {
+    var hasBeenSet: Bool { get set }
+    var recordValue: CKRecordValue? { get set }
     var storage: FieldStorage { get }
 }
 
@@ -27,8 +28,8 @@ protocol _CKFieldProtocol: CKFieldProtocol {
 extension _CKFieldProtocol {
     
     func updateRecord() {
-        storage.recordValue = recordValue
-        storage.updateRecord()
+        guard hasBeenSet else { return }
+        storage.update(with: recordValue)
     }
     
 }

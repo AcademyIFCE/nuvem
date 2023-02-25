@@ -22,7 +22,13 @@ final class FieldStorage {
     }
     
     func updateRecord() {
-        guard let key else { return } 
+        guard let key else { return }
+        record![key] = recordValue
+    }
+    
+    func update(with recordValue: CKRecordValue?) {
+        self.recordValue = recordValue
+        guard let key else { return }
         record![key] = recordValue
     }
     

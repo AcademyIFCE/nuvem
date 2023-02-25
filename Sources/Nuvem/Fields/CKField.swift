@@ -2,12 +2,14 @@ import CloudKit
 import Combine
 
 @propertyWrapper public struct CKField<Value: CKFieldValue>: CKFieldProtocol, _CKFieldProtocol {
-   
+    
+    var hasBeenSet: Bool = false
+    
     public var record: CKRecord? { storage.record }
     
     public let key: String
     
-    public private(set) var recordValue: CKRecordValue?
+    public var recordValue: CKRecordValue?
     
     var storage: FieldStorage
     
@@ -16,7 +18,7 @@ import Combine
     private(set) var value: Value? {
         didSet {
             recordValue = Value.set(value)
-            storage.recordValue = recordValue
+//            storage.recordValue = recordValue
         }
     }
     
@@ -37,6 +39,7 @@ import Combine
             }
         }
         set {
+            hasBeenSet = true
             value = newValue
             publisher.send(newValue)
         }
