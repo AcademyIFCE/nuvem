@@ -4,6 +4,14 @@ import CloudKit
 
 final class NuvemTests: XCTestCase {
 
+    enum E: String, CKFieldValue {
+                
+        case one
+        case two
+        case three
+        
+    }
+    
     struct M: CKModel {
         
         var record: CKRecord!
@@ -38,6 +46,9 @@ final class NuvemTests: XCTestCase {
         @CKAssetField("af")
         var af: Data?
         
+        @CKField("ee")
+        var ee: E
+        
     }
     
     struct M2: CKModel {
@@ -52,6 +63,10 @@ final class NuvemTests: XCTestCase {
         
         @CKField("f3")
         var f3: Int
+    }
+    
+    override class func tearDown() {
+        print(#function)
     }
     
     func testCKFieldValue_RawRepresentable() {
@@ -388,6 +403,8 @@ final class NuvemTests: XCTestCase {
         let f14: CKLogicFilter<M> = .isDate(\.$e, inSameMinuteAs: .now)
         
         let f15: CKPredicateFilter<M> = .predicate(format: "a == %@", NSNumber(value: 1))
+        
+        let f16: some CKFilter<M> = \.$ee == .one
         
         let builder = PredicateBuilder<M>()
         

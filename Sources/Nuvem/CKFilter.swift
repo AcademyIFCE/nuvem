@@ -70,6 +70,14 @@ public struct CKLogicFilter<Model: CKModel>: CKFilter {
     
 }
 
+public func == <Model: CKModel, Value: RawRepresentable>(lhs: KeyPath<Model, CKField<Value>>, rhs: Value) -> CKComparisonFilter<Model> where Value.RawValue: AttributeValueProtocol {
+    return CKComparisonFilter(key: lhs.key, value: rhs.rawValue.attributeValue, _operator: .isEqualTo)
+}
+
+public func != <Model: CKModel, Value: RawRepresentable>(lhs: KeyPath<Model, CKField<Value>>, rhs: Value) -> CKComparisonFilter<Model> where Value.RawValue: AttributeValueProtocol {
+    return CKComparisonFilter(key: lhs.key, value: rhs.rawValue.attributeValue, _operator: .isNotEqualTo)
+}
+
 public func == <Model: CKModel, Value: CKFilterableValue>(lhs: KeyPath<Model, CKField<Value>>, rhs: Value.AttributeValue) -> CKComparisonFilter<Model> {
     return CKComparisonFilter(lhs, .isEqualTo, rhs)
 }
