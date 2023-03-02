@@ -24,7 +24,7 @@ struct EagerLoadQuery<Model> {
         
         for field in referenceFields {
             if let id = field.reference?.recordID, let record = try response[id]?.get() {
-                (field as! _CKFieldProtocol).storage.record = record
+                (field as! _CKFieldProtocol).storage.referenceRecord = record
             }
         }
         

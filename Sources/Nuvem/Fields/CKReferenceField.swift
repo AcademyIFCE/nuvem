@@ -8,7 +8,7 @@ import CloudKit
     
     public var recordValue: CKRecordValue?
     
-    public var reference: CKRecord.Reference? { recordValue as? CKRecord.Reference }
+    public var reference: CKRecord.Reference? { recordValue as? CKRecord.Reference ?? record?[key] as? CKRecord.Reference  }
     
     var storage: FieldStorage
     
@@ -20,7 +20,11 @@ import CloudKit
 
     public var wrappedValue: Value? {
         get {
-            return value
+            if let value {
+                return value
+            } else {
+                return storage.referenceRecord.map(Value.init)
+            }
         }
         set {
             hasBeenSet = true

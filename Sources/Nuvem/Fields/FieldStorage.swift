@@ -16,6 +16,8 @@ final class FieldStorage {
     }
     
     var recordValue: CKRecordValue?
+    
+    var referenceRecord: CKRecord?
             
     init(key: String?) {
         self.key = key
