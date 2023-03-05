@@ -1,7 +1,7 @@
 import CloudKit
 import SwiftUI
 
-public protocol CKModel: Identifiable {
+public protocol CKModel: Identifiable where ID == String {
     static var recordType: CKRecord.RecordType { get }
     var record: CKRecord! { get set }
     init()

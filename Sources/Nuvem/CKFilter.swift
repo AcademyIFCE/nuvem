@@ -70,14 +70,6 @@ public struct CKLogicFilter<Model: CKModel>: CKFilter {
     
 }
 
-public func == <Model: CKModel, Value: RawRepresentable>(lhs: KeyPath<Model, CKField<Value>>, rhs: Value) -> CKComparisonFilter<Model> where Value.RawValue: AttributeValueProtocol {
-    return CKComparisonFilter(key: lhs.key, value: rhs.rawValue.attributeValue, _operator: .isEqualTo)
-}
-
-public func != <Model: CKModel, Value: RawRepresentable>(lhs: KeyPath<Model, CKField<Value>>, rhs: Value) -> CKComparisonFilter<Model> where Value.RawValue: AttributeValueProtocol {
-    return CKComparisonFilter(key: lhs.key, value: rhs.rawValue.attributeValue, _operator: .isNotEqualTo)
-}
-
 public func == <Model: CKModel, Value: CKFilterableValue>(lhs: KeyPath<Model, CKField<Value>>, rhs: Value.AttributeValue) -> CKComparisonFilter<Model> {
     return CKComparisonFilter(lhs, .isEqualTo, rhs)
 }
@@ -102,13 +94,35 @@ public func <= <Model: CKModel, Value: CKFilterableValue>(lhs: KeyPath<Model, CK
     return CKComparisonFilter(lhs, .isLessThanOrEqualTo, rhs)
 }
 
+
+
 public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value) -> CKComparisonFilter<Model> {
     return CKComparisonFilter(lhs, .isEqualTo, rhs)
 }
 
-public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: String) -> CKComparisonFilter<Model> {
+public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value.ID) -> CKComparisonFilter<Model> {
     return CKComparisonFilter(lhs, .isEqualTo, rhs)
 }
+
+public func != <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value) -> CKComparisonFilter<Model> {
+    return CKComparisonFilter(lhs, .isNotEqualTo, rhs)
+}
+
+public func != <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value.ID) -> CKComparisonFilter<Model> {
+    return CKComparisonFilter(lhs, .isNotEqualTo, rhs)
+}
+
+
+
+public func == <Model: CKModel, Value: RawRepresentable>(lhs: KeyPath<Model, CKField<Value>>, rhs: Value) -> CKComparisonFilter<Model> where Value.RawValue: AttributeValueProtocol {
+    return CKComparisonFilter(key: lhs.key, value: rhs.rawValue.attributeValue, _operator: .isEqualTo)
+}
+
+public func != <Model: CKModel, Value: RawRepresentable>(lhs: KeyPath<Model, CKField<Value>>, rhs: Value) -> CKComparisonFilter<Model> where Value.RawValue: AttributeValueProtocol {
+    return CKComparisonFilter(key: lhs.key, value: rhs.rawValue.attributeValue, _operator: .isNotEqualTo)
+}
+
+
 
 public func && <Model: CKModel>(lhs: some CKFilter<Model>, rhs: some CKFilter<Model>) -> CKLogicFilter<Model> {
     return CKLogicFilter(filters: [lhs, rhs], _operator: .and)
@@ -118,10 +132,25 @@ public func || <Model: CKModel>(lhs: some CKFilter<Model>, rhs: some CKFilter<Mo
     return CKLogicFilter(filters: [lhs, rhs], _operator: .or)
 }
 
+
+
+
 extension CKFilter {
     
     public static func predicate<Model: CKModel>(format: String, _ args: CVarArg...) -> Self where Self == CKPredicateFilter<Model> {
         return CKPredicateFilter(predicate: NSPredicate(format: format, args))
+    }
+    
+}
+
+extension CKFilter {
+    
+    public static func and<Model: CKModel>(_ filters: [any CKFilter]) -> Self where Self == CKLogicFilter<Model> {
+        return CKLogicFilter(filters: filters, _operator: .and)
+    }
+    
+    public static func or<Model: CKModel>(_ filters: [any CKFilter]) -> Self where Self == CKLogicFilter<Model> {
+        return CKLogicFilter(filters: filters, _operator: .or)
     }
     
 }
