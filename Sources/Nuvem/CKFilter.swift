@@ -100,15 +100,15 @@ public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceF
     return CKComparisonFilter(lhs, .isEqualTo, rhs)
 }
 
-public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value.ID) -> CKComparisonFilter<Model> {
+public func == <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value.ID) -> CKComparisonFilter<Model> where Value.ID == String {
     return CKComparisonFilter(lhs, .isEqualTo, rhs)
 }
 
-public func != <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value) -> CKComparisonFilter<Model> {
+public func != <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value) -> CKComparisonFilter<Model> where Value.ID == String {
     return CKComparisonFilter(lhs, .isNotEqualTo, rhs)
 }
 
-public func != <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value.ID) -> CKComparisonFilter<Model> {
+public func != <Model: CKModel, Value: CKModel>(lhs: KeyPath<Model, CKReferenceField<Value>>, rhs: Value.ID) -> CKComparisonFilter<Model> where Value.ID == String {
     return CKComparisonFilter(lhs, .isNotEqualTo, rhs)
 }
 
